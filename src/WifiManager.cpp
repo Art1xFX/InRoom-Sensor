@@ -1,8 +1,10 @@
 #include "WifiManager.h"
 
-WifiManager::WifiManager() { }
+WifiManager::WifiManager()
+{
+}
 
-ConnectionStatus WifiManager::connect(const WiFiCredentials& wifiCredentials)
+ConnectionStatus WifiManager::connect(const WiFiCredentials &wifiCredentials)
 {
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifiCredentials.ssid, wifiCredentials.password);
