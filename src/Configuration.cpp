@@ -9,7 +9,7 @@ void Configuration::begin()
     int requiredSize = sizeof(WiFiCredentials);
     EEPROM.begin(requiredSize);
 #ifdef DEBUG
-    Serial.print("Initializing EEPROM with size: ");
+    Serial.print("[Configuration] Initializing EEPROM with size: ");
     Serial.println(requiredSize);
 #endif
 }
@@ -21,16 +21,16 @@ const std::optional<const WiFiCredentials> Configuration::getWifiCredentials() c
     if (this->wifiCredentialsMagicValue != WIFI_CREDENTIALS_MAGIC_VALUE)
     {
 #ifdef DEBUG
-        Serial.println("No valid WiFi credentials signature found in EEPROM.");
+        Serial.println("[Configuration] No valid WiFi credentials signature found in EEPROM.");
 #endif
         return std::nullopt;
     }
 
 #ifdef DEBUG
-    Serial.println("WiFi credentials from EEPROM:");
-    Serial.print("SSID: ");
+    Serial.println("[Configuration] WiFi credentials from EEPROM:");
+    Serial.print("[Configuration] SSID: ");
     Serial.println(this->wifiCredentials.ssid);
-    Serial.print("Password: ");
+    Serial.print("[Configuration] Password: ");
     Serial.println(this->wifiCredentials.password);
 #endif
 
