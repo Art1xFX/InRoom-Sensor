@@ -7,7 +7,7 @@ ConnectionStatus WifiManager::connect(const WiFiCredentials& wifiCredentials)
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifiCredentials.ssid, wifiCredentials.password);
 #ifdef DEBUG
-    Serial.printf("Connecting to Wi-Fi %s", wifiCredentials.ssid);
+    Serial.printf("[WifiManager] Connecting to Wi-Fi %s", wifiCredentials.ssid);
 #endif
     for (int remaining = WIFI_CONNECTION_TIMEOUT; remaining > 0; remaining -= WIFI_CONNECTION_RETRY_INTERVAL)
     {
@@ -19,7 +19,7 @@ ConnectionStatus WifiManager::connect(const WiFiCredentials& wifiCredentials)
         case WL_CONNECTED:
 #ifdef DEBUG
             Serial.println("Done!");
-            Serial.print("IP address: ");
+            Serial.print("[WifiManager] IP address: ");
             Serial.println(WiFi.localIP());
 #endif
             return ConnectionStatus::CONNECTED;
@@ -44,18 +44,18 @@ ConnectionStatus WifiManager::connect(const WiFiCredentials& wifiCredentials)
 void WifiManager::startAccessPoint()
 {
 #ifdef DEBUG
-    Serial.print("Starting access point...");
+    Serial.print("[WifiManager] Starting access point...");
 #endif
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(WIFI_ACCESS_POINT_SSID, WIFI_ACCESS_POINT_PASSWORD, 1, 0, 1);
 #ifdef DEBUG
     Serial.println("Done!");
 
-    Serial.print("IP address: ");
+    Serial.print("[WifiManager] IP address: ");
     Serial.println(WiFi.softAPIP());
-    Serial.print("SSID: ");
+    Serial.print("[WifiManager] SSID: ");
     Serial.println(WiFi.softAPSSID());
-    Serial.print("Password: ");
+    Serial.print("[WifiManager] Password: ");
     Serial.println(WIFI_ACCESS_POINT_PASSWORD);
 #endif
 }
