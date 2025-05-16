@@ -23,7 +23,7 @@ class Configuration
 {
 private:
     WIFI_CREDENTIALS_MAGIC_TYPE wifiCredentialsMagicValue;
-    const WiFiCredentials wifiCredentials;
+    WiFiCredentials wifiCredentials;
 
 public:
     Configuration();

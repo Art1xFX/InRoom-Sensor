@@ -43,8 +43,8 @@ const std::optional<const WiFiCredentials> Configuration::getWifiCredentials() c
 
 void Configuration::setWifiCredentials(const char *ssid, const char *password)
 {
-    strncpy((char*)this->wifiCredentials.ssid, ssid, sizeof(this->wifiCredentials.ssid) - 1);
-    strncpy((char*)this->wifiCredentials.password, password, sizeof(this->wifiCredentials.password) - 1);
+    strncpy(this->wifiCredentials.ssid, ssid, sizeof(this->wifiCredentials.ssid) - 1);
+    strncpy(this->wifiCredentials.password, password, sizeof(this->wifiCredentials.password) - 1);
     
     if (this->wifiCredentialsMagicValue != WIFI_CREDENTIALS_MAGIC_VALUE)
     {
