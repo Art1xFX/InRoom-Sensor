@@ -18,7 +18,7 @@ void loop()
     if (!wifiManager->isConnected() && !(wifiManager->getMode() & WifiMode::STATION))
     {
         auto credentials = configuration->getWifiCredentials();
-        if (credentials.has_value()) 
+        if (credentials != nullptr) 
         {
             Serial.println("[Main] Connecting to Wi-Fi...");
             wifiManager->connect(*credentials);

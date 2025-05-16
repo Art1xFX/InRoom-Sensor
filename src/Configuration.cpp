@@ -18,7 +18,7 @@ Configuration::~Configuration()
     EEPROM.end();
 }
 
-const std::optional<const WiFiCredentials> Configuration::getWifiCredentials() const
+const WiFiCredentials* Configuration::getWifiCredentials() const
 {
     EEPROM.get(WIFI_CREDENTIALS_MAGIC_OFFSET, this->wifiCredentialsMagicValue);
 
@@ -27,7 +27,7 @@ const std::optional<const WiFiCredentials> Configuration::getWifiCredentials() c
 #ifdef DEBUG
         Serial.println("[Configuration] No valid WiFi credentials signature found in EEPROM.");
 #endif
-        return std::nullopt;
+        return nullptr;
     }
 
 #ifdef DEBUG
@@ -38,7 +38,7 @@ const std::optional<const WiFiCredentials> Configuration::getWifiCredentials() c
     Serial.println(this->wifiCredentials.password);
 #endif
 
-    return this->wifiCredentials;
+    return &this->wifiCredentials;
 }
 
 void Configuration::setWifiCredentials(const char *ssid, const char *password)
