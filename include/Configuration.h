@@ -27,6 +27,7 @@ private:
 
 public:
     Configuration();
+    ~Configuration();
 
     const std::optional<const WiFiCredentials> getWifiCredentials() const;
     void setWifiCredentials(const char *ssid, const char *password);

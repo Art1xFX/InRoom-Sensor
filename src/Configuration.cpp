@@ -10,6 +10,14 @@ Configuration::Configuration(): wifiCredentials()
 #endif
 }
 
+Configuration::~Configuration()
+{
+#ifdef DEBUG
+    Serial.println("[Configuration] Deinitializing EEPROM.");
+#endif
+    EEPROM.end();
+}
+
 const std::optional<const WiFiCredentials> Configuration::getWifiCredentials() const
 {
     EEPROM.get(WIFI_CREDENTIALS_MAGIC_OFFSET, this->wifiCredentialsMagicValue);
