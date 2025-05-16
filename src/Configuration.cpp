@@ -2,10 +2,6 @@
 
 Configuration::Configuration(): wifiCredentials()
 {
-}
-
-void Configuration::begin()
-{
     int requiredSize = sizeof(WiFiCredentials);
     EEPROM.begin(requiredSize);
 #ifdef DEBUG

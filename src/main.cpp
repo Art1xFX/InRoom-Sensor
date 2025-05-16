@@ -10,7 +10,6 @@ void setup()
     Serial.println("\n[Main] Starting...");
 #endif
     configuration = new Configuration();
-    configuration->begin();
     wifiManager = new WifiManager();
 }
 
