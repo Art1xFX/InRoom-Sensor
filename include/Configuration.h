@@ -17,6 +17,8 @@ struct WiFiCredentials
 {
     char ssid[32];
     char password[64];
+
+    WiFiCredentials(const char *ssid = "", const char *password = "");
 };
 
 class Configuration

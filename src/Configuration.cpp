@@ -1,5 +1,14 @@
 #include "Configuration.h"
 
+WiFiCredentials::WiFiCredentials(const char *ssid, const char *password)
+{
+    strncpy(this->ssid, ssid, sizeof(this->ssid) - 1);
+    this->ssid[sizeof(this->ssid) - 1] = '\0';
+
+    strncpy(this->password, password, sizeof(this->password) - 1);
+    this->password[sizeof(this->password) - 1] = '\0';
+}
+
 Configuration::Configuration(): wifiCredentials()
 {
     int requiredSize = sizeof(WiFiCredentials);
