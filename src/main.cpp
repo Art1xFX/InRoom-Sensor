@@ -27,6 +27,7 @@ void loop()
         {
             Serial.println("[Main] No Wi-Fi credentials found, starting AP mode");
             wifiManager->startAccessPoint();
+            webServer = new WebServer(*configuration);
         }
     }
     delay(1000);
