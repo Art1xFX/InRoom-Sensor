@@ -63,6 +63,15 @@ void Configuration::setWifiCredentials(const char *ssid, const char *password)
     EEPROM.put(WIFI_CREDENTIALS_OFFSET, this->wifiCredentials);
 }
 
+void Configuration::clearWifiCredentials()
+{
+    if (this->wifiCredentialsMagicValue == WIFI_CREDENTIALS_MAGIC_VALUE)
+    {
+        this->wifiCredentialsMagicValue = 0;
+        EEPROM.put(WIFI_CREDENTIALS_MAGIC_OFFSET, this->wifiCredentialsMagicValue);
+    }
+}
+
 bool Configuration::save()
 {
     return EEPROM.commit();

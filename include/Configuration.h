@@ -33,6 +33,7 @@ public:
 
     const WiFiCredentials* getWifiCredentials() const;
     void setWifiCredentials(const char *ssid, const char *password);
+    void clearWifiCredentials();
 
     bool save();
 };
