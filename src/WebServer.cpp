@@ -1,26 +1,82 @@
 #include "WebServer.h"
 
-WebServer::WebServer(Configuration& config) : server(80), configuration(config)
+WebServer::WebServer(Configuration &configuration) : server(80)
 {
-    server.on("/config", HTTP_GET, [this](AsyncWebServerRequest *request)
-    { 
-        handleGetConfig(request); 
-    });
+    this->postConfigHandler = new AsyncCallbackJsonWebHandler(
+        "/config",
+        [&configuration](AsyncWebServerRequest *request, JsonVariant &json)
+        {
+            if (json.is<JsonObject>())
+            {
+                JsonObject jsonObject = json.as<JsonObject>();
+                WiFiCredentialsJson credentialsJson;
+                credentialsJson.fromJsonObject(jsonObject);
+                Serial.print("[WebServer] SSID: ");
+                Serial.println(credentialsJson.ssid);
+                Serial.print("[WebServer] Password: ");
+                Serial.println(credentialsJson.password);
+                configuration.setWifiCredentials(credentialsJson.ssid, credentialsJson.password);
+                if (configuration.save())
+                {
+                    AsyncJsonResponse *response = new AsyncJsonResponse();
+                    response->setCode(201);
+                    response->setLength();
+                    response->addHeader("Location", "/config");
+                    request->send(response);
+                }
+                else
+                {
+                    request->send(500, "application/json");
+                }
+            }
+            else
+            {
+                request->send(400, "application/json");
+            }
+        });
+    this->postConfigHandler->setMethod(HTTP_POST);
+
+    server.on(
+        "/config",
+        HTTP_GET,
+        [&configuration](AsyncWebServerRequest *request)
+        {
+            auto credentials = configuration.getWifiCredentials();
+            if (credentials != nullptr)
+            {
+                WiFiCredentialsJson credentialsJson(*credentials);
+                char jsonString[256];
+                credentialsJson.toJsonString(jsonString);
+                request->send(200, "application/json", jsonString);
+            }
+            else
+            {
+                request->send(404, "application/json");
+            }
+        });
+
+    this->server.on(
+        "/config",
+        HTTP_DELETE,
+        [&configuration](AsyncWebServerRequest *request)
+        {
+            configuration.clearWifiCredentials();
+            if (configuration.save())
+            {
+                request->send(200, "application/json");
+            }
+            else
+            {
+                request->send(500, "application/json");
+            }
+        });
+
+    server.addHandler(this->postConfigHandler);
     server.begin();
 }
 
-void WebServer::handleGetConfig(AsyncWebServerRequest *request) const
+WebServer::~WebServer()
 {
-    auto credentials = configuration.getWifiCredentials();
-    if (credentials != nullptr)
-    {
-        WiFiCredentialsJson credentialsJson(*credentials);
-        char jsonString[256];
-        credentialsJson.toJsonString(jsonString);
-        request->send(200, "application/json", jsonString);
-    }
-    else
-    {
-        request->send(404, "application/json");
-    }
+    this->server.end();
+    delete this->postConfigHandler;
 }
