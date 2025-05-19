@@ -2,7 +2,6 @@
 
 const int LED_PIN = LED_BUILTIN;
 
-
 void setup()
 {
 #ifdef DEBUG
@@ -19,21 +18,22 @@ void loop()
     if (!wifiManager->isConnected() && !(wifiManager->getMode() & WifiMode::STATION))
     {
         auto credentials = configuration->getWifiCredentials();
-        if (credentials != nullptr) 
+        if (credentials != nullptr)
         {
             Serial.println("[Main] Connecting to Wi-Fi...");
             for (int i = 0; i < 3; i++)
             {
-                switch (wifiManager->connect(*credentials)) {
-                    case ConnectionStatus::TIMEOUT:
-                        delay(1000);
-                        continue;
-                    case ConnectionStatus::WRONG_PASSWORD:
-                        wifiManager->startAccessPoint();
-                        webServer = new WebServer(*configuration);
-                        return;
-                    case ConnectionStatus::CONNECTED:
-                        return;
+                switch (wifiManager->connect(*credentials))
+                {
+                case ConnectionStatus::TIMEOUT:
+                    delay(1000);
+                    continue;
+                case ConnectionStatus::WRONG_PASSWORD:
+                    wifiManager->startAccessPoint();
+                    webServer = new WebServer(*configuration);
+                    return;
+                case ConnectionStatus::CONNECTED:
+                    return;
                 }
             }
         }
