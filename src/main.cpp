@@ -15,20 +15,31 @@ void setup()
 
 void loop()
 {
+    Serial.printf("Free heap: %u bytes\n", ESP.getFreeHeap());
     if (!wifiManager->isConnected() && !(wifiManager->getMode() & WifiMode::STATION))
     {
         auto credentials = configuration->getWifiCredentials();
         if (credentials != nullptr) 
         {
             Serial.println("[Main] Connecting to Wi-Fi...");
-            wifiManager->connect(*credentials);
+            for (int i = 0; i < 3; i++)
+            {
+                switch (wifiManager->connect(*credentials)) {
+                    case ConnectionStatus::TIMEOUT:
+                        delay(1000);
+                        continue;
+                    case ConnectionStatus::WRONG_PASSWORD:
+                        wifiManager->startAccessPoint();
+                        webServer = new WebServer(*configuration);
+                        return;
+                    case ConnectionStatus::CONNECTED:
+                        return;
+                }
+            }
         }
-        else 
-        {
-            Serial.println("[Main] No Wi-Fi credentials found, starting AP mode");
-            wifiManager->startAccessPoint();
-            webServer = new WebServer(*configuration);
-        }
+        Serial.println("[Main] No Wi-Fi credentials found, starting AP mode");
+        wifiManager->startAccessPoint();
+        webServer = new WebServer(*configuration);
     }
     delay(1000);
 }
