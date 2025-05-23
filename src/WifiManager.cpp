@@ -33,7 +33,7 @@ ConnectionStatus WifiManager::connect(const WiFiCredentials &wifiCredentials)
             return ConnectionStatus::WRONG_PASSWORD;
 
         default:
-            continue;
+            break;
         }
         delay(WIFI_CONNECTION_RETRY_INTERVAL);
     }
