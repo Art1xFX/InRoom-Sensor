@@ -93,5 +93,8 @@ void Configuration::clearWifiCredentials()
 
 bool Configuration::save()
 {
+#ifdef DEBUG
+    Serial.println("[Configuration] Saving configuration to EEPROM.");
+#endif
     return EEPROM.commit();
 }
