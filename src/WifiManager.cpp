@@ -6,7 +6,11 @@ WifiManager::WifiManager()
 
 ConnectionStatus WifiManager::connect(const WiFiCredentials &wifiCredentials)
 {
-    WiFi.mode(WIFI_STA);
+    if (!(this->getMode() & WifiMode::ACCESS_POINT))
+    {
+        Serial.println("[WifiManager] Access point mode is not enabled. Entering station mode.");
+        WiFi.mode(WIFI_STA);
+    }
     WiFi.begin(wifiCredentials.ssid, wifiCredentials.password);
 #ifdef DEBUG
     Serial.printf("[WifiManager] Connecting to Wi-Fi %s", wifiCredentials.ssid);
