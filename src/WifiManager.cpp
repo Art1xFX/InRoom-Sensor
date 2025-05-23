@@ -48,6 +48,9 @@ void WifiManager::startAccessPoint()
 #ifdef DEBUG
     Serial.print("[WifiManager] Starting access point...");
 #endif
+    // Destroy the current access point if it exists.
+    WiFi.softAPdisconnect(true);
+
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(WIFI_ACCESS_POINT_SSID, WIFI_ACCESS_POINT_PASSWORD, 1, 0, 1);
 #ifdef DEBUG
