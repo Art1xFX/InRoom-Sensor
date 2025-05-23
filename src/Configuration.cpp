@@ -42,9 +42,9 @@ const WiFiCredentials* Configuration::getWifiCredentials() const
     EEPROM.get(WIFI_CREDENTIALS_OFFSET, this->wifiCredentials);
 #ifdef DEBUG
     Serial.println("[Configuration] WiFi credentials from EEPROM:");
-    Serial.print("[Configuration] SSID: ");
+    Serial.print("  SSID: ");
     Serial.println(this->wifiCredentials.ssid);
-    Serial.print("[Configuration] Password: ");
+    Serial.print("  Password: ");
     Serial.println(this->wifiCredentials.password);
 #endif
 
