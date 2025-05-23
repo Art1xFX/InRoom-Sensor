@@ -11,7 +11,7 @@ WiFiCredentials::WiFiCredentials(const char *ssid, const char *password)
 
 Configuration::Configuration(): wifiCredentials()
 {
-    int requiredSize = sizeof(WiFiCredentials);
+    int requiredSize = sizeof(WiFiCredentials) + sizeof(WIFI_CREDENTIALS_MAGIC_TYPE);
     EEPROM.begin(requiredSize);
 #ifdef DEBUG
     Serial.print("[Configuration] Initializing EEPROM with size: ");
