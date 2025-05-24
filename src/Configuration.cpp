@@ -16,9 +16,10 @@ MqttEndpoint::MqttEndpoint(const char *host, uint16_t port)
     this->port = port;
 }
 
-Configuration::Configuration(): wifiCredentials()
+Configuration::Configuration(): wifiCredentials(), mqttEndpoint()
 {
-    int requiredSize = sizeof(WiFiCredentials) + sizeof(WIFI_CREDENTIALS_MAGIC_TYPE);
+    int requiredSize = sizeof(WiFiCredentials) + sizeof(WIFI_CREDENTIALS_MAGIC_TYPE) +
+                        sizeof(MqttEndpoint) + sizeof(MQTT_ENDPOINT_MAGIC_TYPE);
     EEPROM.begin(requiredSize);
 #ifdef DEBUG
     Serial.print("[Configuration] Initializing EEPROM with size: ");
@@ -95,6 +96,69 @@ void Configuration::clearWifiCredentials()
     {
         this->wifiCredentialsMagicValue = 0;
         EEPROM.put(WIFI_CREDENTIALS_MAGIC_OFFSET, this->wifiCredentialsMagicValue);
+    }
+}
+
+const MqttEndpoint *Configuration::getMqttEndpoint() const
+{
+    EEPROM.get(MQTT_ENDPOINT_MAGIC_OFFSET, this->mqttEndpointMagicValue);
+
+    if (this->mqttEndpointMagicValue != MQTT_ENDPOINT_MAGIC_VALUE)
+    {
+#ifdef DEBUG
+        Serial.println("[Configuration] No valid MQTT endpoint signature found in EEPROM.");
+#endif
+        return nullptr;
+    }
+
+    EEPROM.get(MQTT_ENDPOINT_OFFSET, this->mqttEndpoint);
+#ifdef DEBUG
+    Serial.println("[Configuration] MQTT endpoint from EEPROM:");
+    Serial.print("  Host: ");
+    Serial.println(this->mqttEndpoint.host);
+    Serial.print("  Port: ");
+    Serial.println(this->mqttEndpoint.port);
+#endif
+    return &this->mqttEndpoint;
+}
+
+void Configuration::setMqttEndpoint(const char *host, uint16_t port)
+{
+    strncpy(this->mqttEndpoint.host, host, sizeof(this->mqttEndpoint.host) - 1);
+    this->mqttEndpoint.port = port;
+#ifdef DEBUG
+    Serial.print("[Configuration] Checking MQTT endpoint magic value ... ");
+#endif
+    if (this->mqttEndpointMagicValue != MQTT_ENDPOINT_MAGIC_VALUE)
+    {
+#ifdef DEBUG
+        Serial.println("Missing.");
+        Serial.print("[Configuration] Writing MQTT endpoint magic value: ");
+        Serial.println(MQTT_ENDPOINT_MAGIC_VALUE);
+#endif
+        this->mqttEndpointMagicValue = MQTT_ENDPOINT_MAGIC_VALUE;
+        EEPROM.put(MQTT_ENDPOINT_MAGIC_OFFSET, this->mqttEndpointMagicValue);
+    }
+#ifdef DEBUG
+    else
+    {
+        Serial.println("Found.");
+    }
+    Serial.println("[Configuration] Writing MQTT endpoint to EEPROM:");
+    Serial.print("  Host: ");
+    Serial.println(this->mqttEndpoint.host);
+    Serial.print("  Port: ");
+    Serial.println(this->mqttEndpoint.port);
+#endif
+    EEPROM.put(MQTT_ENDPOINT_OFFSET, this->mqttEndpoint);
+}
+
+void Configuration::clearMqttEndpoint()
+{
+    if (this->mqttEndpointMagicValue == MQTT_ENDPOINT_MAGIC_VALUE)
+    {
+        this->mqttEndpointMagicValue = 0;
+        EEPROM.put(MQTT_ENDPOINT_MAGIC_OFFSET, this->mqttEndpointMagicValue);
     }
 }
 
