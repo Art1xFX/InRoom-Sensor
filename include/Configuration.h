@@ -21,6 +21,14 @@ struct WiFiCredentials
     WiFiCredentials(const char *ssid = "", const char *password = "");
 };
 
+struct MqttEndpoint
+{
+    char host[255];
+    uint16_t port;
+
+    MqttEndpoint(const char *host, uint16_t port = 1883);
+};
+
 class Configuration
 {
 private:
