@@ -14,7 +14,7 @@ void setup()
 
 void loop()
 {
-    Serial.printf("Free heap: %u bytes\n", ESP.getFreeHeap());
+    Serial.print(".");
     if (!wifiManager->isConnected() && !(wifiManager->getMode() & WifiMode::STATION))
     {
         auto credentials = configuration->getWifiCredentials();
