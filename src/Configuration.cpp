@@ -18,8 +18,8 @@ MqttEndpoint::MqttEndpoint(const char *host, uint16_t port)
 
 Configuration::Configuration(): wifiCredentials(), mqttEndpoint()
 {
-    int requiredSize = sizeof(WiFiCredentials) + sizeof(WIFI_CREDENTIALS_MAGIC_TYPE) +
-                        sizeof(MqttEndpoint) + sizeof(MQTT_ENDPOINT_MAGIC_TYPE);
+    int requiredSize = sizeof(WiFiCredentials) + WIFI_CREDENTIALS_MAGIC_SIZE +
+                        sizeof(MqttEndpoint) + MQTT_ENDPOINT_MAGIC_SIZE;
     EEPROM.begin(requiredSize);
 #ifdef DEBUG
     Serial.print("[Configuration] Initializing EEPROM with size: ");
