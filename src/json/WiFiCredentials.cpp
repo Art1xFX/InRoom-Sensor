@@ -1,4 +1,4 @@
-#include "json/WiFiCredentialsJson.h"
+#include "json/WiFiCredentials.h"
 
 using namespace json;
 
