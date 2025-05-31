@@ -9,7 +9,7 @@ WebServer::WebServer(Configuration &configuration) : server(80)
             if (json.is<JsonObject>())
             {
                 JsonObject jsonObject = json.as<JsonObject>();
-                json::WiFiCredentialsJson credentialsJson;
+                json::WiFiCredentials credentialsJson;
                 credentialsJson.fromJsonObject(jsonObject);
                 Serial.print("[WebServer] SSID: ");
                 Serial.println(credentialsJson.ssid);
@@ -44,7 +44,7 @@ WebServer::WebServer(Configuration &configuration) : server(80)
             auto credentials = configuration.getWifiCredentials();
             if (credentials != nullptr)
             {
-                json::WiFiCredentialsJson credentialsJson(*credentials);
+                json::WiFiCredentials credentialsJson(*credentials);
                 char jsonString[256];
                 credentialsJson.toJsonString(jsonString);
                 request->send(200, "application/json", jsonString);

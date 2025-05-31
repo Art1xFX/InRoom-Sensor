@@ -2,17 +2,17 @@
 
 using namespace json;
 
-WiFiCredentialsJson::WiFiCredentialsJson(const WiFiCredentials &credentials): WiFiCredentials(credentials.ssid, credentials.password)
+json::WiFiCredentials::WiFiCredentials(const ::WiFiCredentials &credentials): ::WiFiCredentials(credentials.ssid, credentials.password)
 {
 }
 
-void WiFiCredentialsJson::toJsonObject(JsonObject &json) const
+void json::WiFiCredentials::toJsonObject(JsonObject &json) const
 {
     json["ssid"] = this->ssid;
     json["password"] = this->password;
 }
 
-void WiFiCredentialsJson::fromJsonObject(const JsonObject &json)
+void json::WiFiCredentials::fromJsonObject(const JsonObject &json)
 {
     if (json["ssid"].is<const char*>())
     {

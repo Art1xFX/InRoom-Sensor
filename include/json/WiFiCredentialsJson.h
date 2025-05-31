@@ -5,11 +5,11 @@
 
 namespace json
 {
-    class WiFiCredentialsJson : public WiFiCredentials, public Json<256>
+    class WiFiCredentials : public ::WiFiCredentials, public Json<256>
     {
     public:
-        WiFiCredentialsJson() = default;
-        WiFiCredentialsJson(const WiFiCredentials &credentials);
+        WiFiCredentials() = default;
+        WiFiCredentials(const ::WiFiCredentials &credentials);
 
         void toJsonObject(JsonObject &json) const;
 
