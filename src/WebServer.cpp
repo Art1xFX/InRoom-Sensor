@@ -11,10 +11,17 @@ WebServer::WebServer(Configuration &configuration) : server(80)
                 JsonObject jsonObject = json.as<JsonObject>();
                 json::Configuration configurationJson;
                 configurationJson.fromJsonObject(jsonObject);
-                Serial.print("[WebServer] SSID: ");
+                Serial.println("[WebServer] ===> POST /config");
+                Serial.println("  === Wi-Fi ===");
+                Serial.print("    SSID: ");
                 Serial.println(configurationJson.wifi_ssid);
-                Serial.print("[WebServer] Password: ");
+                Serial.print("    Password: ");
                 Serial.println(configurationJson.wifi_password);
+                Serial.println("  === MQTT ===");
+                Serial.print("    Host: ");
+                Serial.println(configurationJson.mqtt_host);
+                Serial.print("    Port: ");
+                Serial.println(configurationJson.mqtt_port);
                 configuration.setWifiCredentials(configurationJson.wifi_ssid, configurationJson.wifi_password);
                 if (configuration.save())
                 {
