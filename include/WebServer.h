@@ -6,7 +6,7 @@
 #include <AsyncJson.h>
 
 #include "Configuration.h"
-#include "json/WiFiCredentials.h"
+#include "json/Configuration.h"
 
 
 class WebServer {

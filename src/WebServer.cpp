@@ -9,13 +9,13 @@ WebServer::WebServer(Configuration &configuration) : server(80)
             if (json.is<JsonObject>())
             {
                 JsonObject jsonObject = json.as<JsonObject>();
-                json::WiFiCredentials credentialsJson;
-                credentialsJson.fromJsonObject(jsonObject);
+                json::Configuration configurationJson;
+                configurationJson.fromJsonObject(jsonObject);
                 Serial.print("[WebServer] SSID: ");
-                Serial.println(credentialsJson.ssid);
+                Serial.println(configurationJson.wifi_ssid);
                 Serial.print("[WebServer] Password: ");
-                Serial.println(credentialsJson.password);
-                configuration.setWifiCredentials(credentialsJson.ssid, credentialsJson.password);
+                Serial.println(configurationJson.wifi_password);
+                configuration.setWifiCredentials(configurationJson.wifi_ssid, configurationJson.wifi_password);
                 if (configuration.save())
                 {
                     AsyncJsonResponse *response = new AsyncJsonResponse();
@@ -44,9 +44,11 @@ WebServer::WebServer(Configuration &configuration) : server(80)
             auto credentials = configuration.getWifiCredentials();
             if (credentials != nullptr)
             {
-                json::WiFiCredentials credentialsJson(*credentials);
-                char jsonString[256];
-                credentialsJson.toJsonString(jsonString);
+                json::Configuration configurationJson;
+                strlcpy(configurationJson.wifi_ssid, credentials->ssid, sizeof(configurationJson.wifi_ssid) - 1);
+                strlcpy(configurationJson.wifi_password, credentials->password, sizeof(configurationJson.wifi_password) - 1);
+                char jsonString[1024];
+                configurationJson.toJsonString(jsonString);
                 request->send(200, "application/json", jsonString);
             }
             else
