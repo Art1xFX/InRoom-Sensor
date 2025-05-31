@@ -23,6 +23,7 @@ WebServer::WebServer(Configuration &configuration) : server(80)
                 Serial.print("    Port: ");
                 Serial.println(configurationJson.mqtt_port);
                 configuration.setWifiCredentials(configurationJson.wifi_ssid, configurationJson.wifi_password);
+                configuration.setMqttEndpoint(configurationJson.mqtt_host, configurationJson.mqtt_port);
                 if (configuration.save())
                 {
                     AsyncJsonResponse *response = new AsyncJsonResponse();
@@ -49,11 +50,14 @@ WebServer::WebServer(Configuration &configuration) : server(80)
         [&configuration](AsyncWebServerRequest *request)
         {
             auto credentials = configuration.getWifiCredentials();
-            if (credentials != nullptr)
+            auto mqttEndpoint = configuration.getMqttEndpoint();
+            if (credentials != nullptr && mqttEndpoint != nullptr)
             {
                 json::Configuration configurationJson;
                 strlcpy(configurationJson.wifi_ssid, credentials->ssid, sizeof(configurationJson.wifi_ssid) - 1);
                 strlcpy(configurationJson.wifi_password, credentials->password, sizeof(configurationJson.wifi_password) - 1);
+                strlcpy(configurationJson.mqtt_host, mqttEndpoint->host, sizeof(configurationJson.mqtt_host) - 1);
+                configurationJson.mqtt_port = mqttEndpoint->port;
                 char jsonString[1024];
                 configurationJson.toJsonString(jsonString);
                 request->send(200, "application/json", jsonString);
