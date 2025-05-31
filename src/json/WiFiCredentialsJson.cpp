@@ -1,5 +1,6 @@
 #include "json/WiFiCredentialsJson.h"
 
+using namespace json;
 
 WiFiCredentialsJson::WiFiCredentialsJson(const WiFiCredentials &credentials): WiFiCredentials(credentials.ssid, credentials.password)
 {
