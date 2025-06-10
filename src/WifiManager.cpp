@@ -15,36 +15,29 @@ ConnectionStatus WifiManager::connect(const WiFiCredentials &wifiCredentials)
 #ifdef DEBUG
     Serial.printf("[WifiManager] Connecting to Wi-Fi %s", wifiCredentials.ssid);
 #endif
-    for (int remaining = WIFI_CONNECTION_TIMEOUT; remaining > 0; remaining -= WIFI_CONNECTION_RETRY_INTERVAL)
+
+    switch (WiFi.status())
     {
+    case WL_CONNECTED:
 #ifdef DEBUG
-        Serial.print(".");
+        Serial.println("Done!");
+        Serial.print("[WifiManager] IP address: ");
+        Serial.println(WiFi.localIP());
 #endif
-        switch (WiFi.status())
-        {
-        case WL_CONNECTED:
-#ifdef DEBUG
-            Serial.println("Done!");
-            Serial.print("[WifiManager] IP address: ");
-            Serial.println(WiFi.localIP());
-#endif
-            return ConnectionStatus::CONNECTED;
+        return ConnectionStatus::CONNECTED;
 
-        case WL_WRONG_PASSWORD:
+    case WL_WRONG_PASSWORD:
 #ifdef DEBUG
-            Serial.println("Failed! (Reason: Wrong password)");
+        Serial.println("Failed! (Reason: Wrong password)");
 #endif
-            return ConnectionStatus::WRONG_PASSWORD;
+        return ConnectionStatus::WRONG_PASSWORD;
 
-        default:
-            break;
-        }
-        delay(WIFI_CONNECTION_RETRY_INTERVAL);
+    default:
+#ifdef DEBUG
+        Serial.println("Failed! (Reason: Connection timeout)");
+#endif
+        return ConnectionStatus::TIMEOUT;
     }
-#ifdef DEBUG
-    Serial.println("Failed! (Reason: Connection timeout)");
-#endif
-    return ConnectionStatus::TIMEOUT;
 }
 
 void WifiManager::startAccessPoint()
