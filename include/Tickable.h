@@ -9,7 +9,7 @@ private:
     uint32_t lastTickTime = 0;
 
 public:
-    virtual void onTick() = 0;
+    virtual void onTick(uint32_t now) = 0;
 
     virtual void tick() final;
 

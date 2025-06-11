@@ -6,7 +6,7 @@ void TickableBase::tick()
     if (currentTime - this->lastTickTime >= this->interval)
     {
         this->lastTickTime = currentTime;
-        this->onTick();
+        this->onTick(currentTime);
     }
 }
 
