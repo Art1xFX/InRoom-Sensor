@@ -10,36 +10,40 @@ void setup()
 #endif
     configuration = new Configuration();
     wifiManager = new WifiManager();
+    wifiManager->onConnect([]()
+    {
+        Serial.println("[Main] Wi-Fi connected.");
+    });
+    wifiManager->onError([](ConnectionStatus status)
+    {
+        switch (status)
+        {
+        case ConnectionStatus::TIMEOUT:
+            Serial.println("[Main] Wi-Fi connection error (timeout).");
+            break;
+
+        case ConnectionStatus::WRONG_PASSWORD:
+            Serial.println("[Main] Wi-Fi connection error (wrong password).");
+            break;
+        }
+        wifiManager->startAccessPoint();
+        webServer = new WebServer(*configuration);
+    });
+
+    auto wifiCredentials = configuration->getWifiCredentials();
+    if (wifiCredentials)
+    {
+        wifiManager->connect(*wifiCredentials);
+    }
+    else
+    {
+        Serial.println("[Main] No Wi-Fi credentials found. Starting access point.");
+        wifiManager->startAccessPoint();
+        webServer = new WebServer(*configuration);
+    }
 }
 
 void loop()
 {
-    Serial.print(".");
-    if (!wifiManager->isConnected() && !(wifiManager->getMode() & WifiMode::STATION))
-    {
-        auto credentials = configuration->getWifiCredentials();
-        if (credentials != nullptr)
-        {
-            Serial.println("[Main] Connecting to Wi-Fi...");
-            for (int i = 0; i < 3; i++)
-            {
-                switch (wifiManager->connect(*credentials))
-                {
-                case ConnectionStatus::TIMEOUT:
-                    delay(1000);
-                    continue;
-                case ConnectionStatus::WRONG_PASSWORD:
-                    wifiManager->startAccessPoint();
-                    webServer = new WebServer(*configuration);
-                    return;
-                case ConnectionStatus::CONNECTED:
-                    return;
-                }
-            }
-        }
-        Serial.println("[Main] No Wi-Fi credentials found, starting AP mode");
-        wifiManager->startAccessPoint();
-        webServer = new WebServer(*configuration);
-    }
-    delay(1000);
+    wifiManager->tick();
 }

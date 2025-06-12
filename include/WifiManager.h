@@ -1,13 +1,16 @@
 #pragma once
 
+#include <list>
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 
+#include "Tickable.h"
 #include "Configuration.h"
 
 #define WIFI_ACCESS_POINT_SSID "ESP8266_Setup"
 #define WIFI_ACCESS_POINT_PASSWORD "password123"
-#define WIFI_CONNECTION_TIMEOUT 10000
+#define WIFI_CONNECTION_TIMEOUT 30000
 #define WIFI_CONNECTION_RETRY_INTERVAL 1000
 
 enum WifiMode : uint8_t
@@ -25,8 +28,21 @@ enum struct ConnectionStatus : uint8_t
     TIMEOUT,
 };
 
-class WifiManager
+typedef std::function<void()> ConnectCallback;
+
+typedef std::function<void(const ConnectionStatus)> ErrorCallback;
+
+class WifiManager : public TickableBase
 {
+protected:
+    wl_status_t previousStatus;
+
+    std::list<ConnectCallback> onConnectCallbacks;
+
+    std::list<ErrorCallback> onErrorCallbacks;
+
+    std::optional<uint32_t> connectionStartTime;
+
 public:
     WifiManager();
 
@@ -37,4 +53,10 @@ public:
     bool isConnected() const;
 
     WifiMode getMode() const;
+
+    void onTick(uint32_t now) override;
+
+    void onConnect(ConnectCallback callback);
+
+    void onError(ErrorCallback callback);
 };
