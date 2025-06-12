@@ -26,6 +26,7 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
                 configuration.setMqttEndpoint(configurationJson.mqtt_host, configurationJson.mqtt_port);
                 wifiManager.connect(*configuration.getWifiCredentials());
 
+                // TODO: Save the configuration to persistent storage only if the Wi-Fi connection is successful.
                 if (configuration.save())
                 {
                     AsyncJsonResponse *response = new AsyncJsonResponse();
