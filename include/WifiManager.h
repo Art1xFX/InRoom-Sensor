@@ -46,7 +46,7 @@ protected:
 public:
     WifiManager();
 
-    ConnectionStatus connect(const WiFiCredentials& credentials);
+    void connect(const WiFiCredentials& credentials);
 
     void startAccessPoint();
 

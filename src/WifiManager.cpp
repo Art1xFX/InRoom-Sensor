@@ -5,7 +5,7 @@ WifiManager::WifiManager()
     this->previousStatus = WiFi.status();
 }
 
-ConnectionStatus WifiManager::connect(const WiFiCredentials &wifiCredentials)
+void WifiManager::connect(const WiFiCredentials &wifiCredentials)
 {
     if (!(this->getMode() & WifiMode::ACCESS_POINT))
     {
@@ -18,29 +18,7 @@ ConnectionStatus WifiManager::connect(const WiFiCredentials &wifiCredentials)
 #ifdef DEBUG
     Serial.printf("[WifiManager] Connecting to Wi-Fi \"%s\"...", wifiCredentials.ssid);
 #endif
-
-    switch (WiFi.status())
-    {
-    case WL_CONNECTED:
-#ifdef DEBUG
-        Serial.println("Done!");
-        Serial.print("[WifiManager] IP address: ");
-        Serial.println(WiFi.localIP());
-#endif
-        return ConnectionStatus::CONNECTED;
-
-    case WL_WRONG_PASSWORD:
-#ifdef DEBUG
-        Serial.println("Failed! (Reason: Wrong password)");
-#endif
-        return ConnectionStatus::WRONG_PASSWORD;
-
-    default:
-#ifdef DEBUG
-        Serial.println("Failed! (Reason: Connection timeout)");
-#endif
-        return ConnectionStatus::TIMEOUT;
-    }
+    // TODO: Handle status changes and connection errors.
 }
 
 void WifiManager::startAccessPoint()
