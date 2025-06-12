@@ -6,6 +6,7 @@
 #include <AsyncJson.h>
 
 #include "Configuration.h"
+#include "WifiManager.h"
 #include "json/Configuration.h"
 
 
@@ -15,6 +16,6 @@ private:
     AsyncCallbackJsonWebHandler* postConfigHandler;
 
 public:
-    WebServer(Configuration& config);
+    WebServer(Configuration& config, WifiManager& wifiManager);
     ~WebServer();
 };

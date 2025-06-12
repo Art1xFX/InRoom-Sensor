@@ -27,7 +27,7 @@ void setup()
             break;
         }
         wifiManager->startAccessPoint();
-        webServer = new WebServer(*configuration);
+        webServer = new WebServer(*configuration, *wifiManager);
     });
 
     auto wifiCredentials = configuration->getWifiCredentials();
@@ -39,7 +39,7 @@ void setup()
     {
         Serial.println("[Main] No Wi-Fi credentials found. Starting access point.");
         wifiManager->startAccessPoint();
-        webServer = new WebServer(*configuration);
+        webServer = new WebServer(*configuration, *wifiManager);
     }
 }
 

@@ -1,10 +1,10 @@
 #include "WebServer.h"
 
-WebServer::WebServer(Configuration &configuration) : server(80)
+WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : server(80)
 {
     this->postConfigHandler = new AsyncCallbackJsonWebHandler(
         "/config",
-        [&configuration](AsyncWebServerRequest *request, JsonVariant &json)
+        [&configuration, &wifiManager](AsyncWebServerRequest *request, JsonVariant &json)
         {
             if (json.is<JsonObject>())
             {
@@ -24,6 +24,8 @@ WebServer::WebServer(Configuration &configuration) : server(80)
                 Serial.println(configurationJson.mqtt_port);
                 configuration.setWifiCredentials(configurationJson.wifi_ssid, configurationJson.wifi_password);
                 configuration.setMqttEndpoint(configurationJson.mqtt_host, configurationJson.mqtt_port);
+                wifiManager.connect(*configuration.getWifiCredentials());
+
                 if (configuration.save())
                 {
                     AsyncJsonResponse *response = new AsyncJsonResponse();
