@@ -76,6 +76,7 @@ void WifiManager::onTick(uint32_t now)
                 callback(ConnectionStatus::WRONG_PASSWORD);
             }
             this->connectionStartTime.reset();
+            WiFi.disconnect();
         }
         this->previousStatus = currentStatus;
     }
