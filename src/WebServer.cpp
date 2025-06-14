@@ -94,5 +94,5 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
 WebServer::~WebServer()
 {
     this->server.end();
-    delete this->postConfigHandler;
+    this->postConfigHandler = nullptr;
 }
