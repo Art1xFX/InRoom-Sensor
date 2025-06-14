@@ -43,6 +43,15 @@ void WifiManager::startAccessPoint()
 #endif
 }
 
+void WifiManager::stopAccessPoint()
+{
+#ifdef DEBUG
+    Serial.println("[WifiManager] Stopping access point...");
+#endif
+    WiFi.softAPdisconnect(true);
+    WiFi.mode(WIFI_STA);
+}
+
 bool WifiManager::isConnected() const
 {
     return WiFi.status() == WL_CONNECTED;

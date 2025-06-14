@@ -49,6 +49,8 @@ public:
 
     void startAccessPoint();
 
+    void stopAccessPoint();
+
     bool isConnected() const;
 
     WifiMode getMode() const;
