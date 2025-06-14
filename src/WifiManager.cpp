@@ -79,6 +79,7 @@ void WifiManager::onTick(uint32_t now)
             }
             this->connectionStartTime.reset();
             break;
+
         case WL_WRONG_PASSWORD:
             for (const auto &callback : this->onErrorCallbacks)
             {
@@ -86,6 +87,12 @@ void WifiManager::onTick(uint32_t now)
             }
             this->connectionStartTime.reset();
             WiFi.disconnect();
+
+        case WL_DISCONNECTED:
+            for (const auto &callback : this->onDisconnectCallbacks)
+            {
+                callback();
+            }
         }
         this->previousStatus = currentStatus;
     }
@@ -113,4 +120,9 @@ void WifiManager::onConnect(ConnectCallback callback)
 void WifiManager::onError(ErrorCallback callback)
 {
     this->onErrorCallbacks.push_back(callback);
+}
+
+void WifiManager::onDisconnect(DisconnectCallback callback)
+{
+    this->onDisconnectCallbacks.push_back(callback);
 }

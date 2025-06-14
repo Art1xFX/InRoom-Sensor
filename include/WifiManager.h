@@ -31,6 +31,8 @@ typedef std::function<void()> ConnectCallback;
 
 typedef std::function<void(const ConnectionStatus)> ErrorCallback;
 
+typedef ConnectCallback DisconnectCallback;
+
 class WifiManager : public TickableBase
 {
 protected:
@@ -39,6 +41,8 @@ protected:
     std::list<ConnectCallback> onConnectCallbacks;
 
     std::list<ErrorCallback> onErrorCallbacks;
+
+    std::list<DisconnectCallback> onDisconnectCallbacks;
 
     std::optional<uint32_t> connectionStartTime;
 
@@ -60,4 +64,6 @@ public:
     void onConnect(ConnectCallback callback);
 
     void onError(ErrorCallback callback);
+
+    void onDisconnect(DisconnectCallback callback);
 };
