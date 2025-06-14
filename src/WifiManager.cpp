@@ -2,45 +2,32 @@
 
 WifiManager::WifiManager()
 {
+    this->previousStatus = WiFi.status();
 }
 
-ConnectionStatus WifiManager::connect(const WiFiCredentials &wifiCredentials)
+void WifiManager::connect(const WiFiCredentials &wifiCredentials)
 {
-    WiFi.mode(WIFI_STA);
+    if (!(this->getMode() & WifiMode::ACCESS_POINT))
+    {
+        Serial.println("[WifiManager] Access point mode is not enabled. Entering station mode.");
+        WiFi.mode(WIFI_STA);
+    }
+    this->connectionStartTime = millis();
+
     WiFi.begin(wifiCredentials.ssid, wifiCredentials.password);
 #ifdef DEBUG
-    Serial.printf("[WifiManager] Connecting to Wi-Fi %s", wifiCredentials.ssid);
+    Serial.printf("[WifiManager] Connecting to Wi-Fi \"%s\"...", wifiCredentials.ssid);
 #endif
-    for (int remaining = WIFI_CONNECTION_TIMEOUT; remaining > 0; remaining -= WIFI_CONNECTION_RETRY_INTERVAL)
-    {
-#ifdef DEBUG
-        Serial.print(".");
-#endif
-        switch (WiFi.status())
-        {
-        case WL_CONNECTED:
-#ifdef DEBUG
-            Serial.println("Done!");
-            Serial.print("[WifiManager] IP address: ");
-            Serial.println(WiFi.localIP());
-#endif
-            return ConnectionStatus::CONNECTED;
+    // TODO: Handle status changes and connection errors.
+}
 
-        case WL_WRONG_PASSWORD:
+void WifiManager::disconnect()
+{
 #ifdef DEBUG
-            Serial.println("Failed! (Reason: Wrong password)");
+    Serial.println("[WifiManager] Disconnecting from Wi-Fi...");
 #endif
-            return ConnectionStatus::WRONG_PASSWORD;
-
-        default:
-            continue;
-        }
-        delay(WIFI_CONNECTION_RETRY_INTERVAL);
-    }
-#ifdef DEBUG
-    Serial.println("Failed! (Reason: Connection timeout)");
-#endif
-    return ConnectionStatus::TIMEOUT;
+    WiFi.disconnect();
+    this->connectionStartTime.reset();
 }
 
 void WifiManager::startAccessPoint()
@@ -48,6 +35,9 @@ void WifiManager::startAccessPoint()
 #ifdef DEBUG
     Serial.print("[WifiManager] Starting access point...");
 #endif
+    // Destroy the current access point if it exists.
+    WiFi.softAPdisconnect(true);
+
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(WIFI_ACCESS_POINT_SSID, WIFI_ACCESS_POINT_PASSWORD, 1, 0, 1);
 #ifdef DEBUG
@@ -62,6 +52,15 @@ void WifiManager::startAccessPoint()
 #endif
 }
 
+void WifiManager::stopAccessPoint()
+{
+#ifdef DEBUG
+    Serial.println("[WifiManager] Stopping access point...");
+#endif
+    WiFi.softAPdisconnect(true);
+    WiFi.mode(WIFI_STA);
+}
+
 bool WifiManager::isConnected() const
 {
     return WiFi.status() == WL_CONNECTED;
@@ -70,4 +69,69 @@ bool WifiManager::isConnected() const
 WifiMode WifiManager::getMode() const
 {
     return static_cast<WifiMode>(WiFi.getMode());
+}
+
+void WifiManager::onTick(uint32_t now)
+{
+    auto currentStatus = WiFi.status();
+    if (currentStatus != this->previousStatus)
+    {
+#ifdef DEBUG
+        Serial.printf("[WifiManager] Wi-Fi status changed from %d to %d.\n", previousStatus, currentStatus);
+#endif
+        switch (currentStatus)
+        {
+        case WL_CONNECTED:
+            for (const auto &callback : this->onConnectCallbacks)
+            {
+                callback();
+            }
+            this->connectionStartTime.reset();
+            break;
+
+        case WL_WRONG_PASSWORD:
+            for (const auto &callback : this->onErrorCallbacks)
+            {
+                callback(ConnectionStatus::WRONG_PASSWORD);
+            }
+            this->connectionStartTime.reset();
+            WiFi.disconnect();
+
+        case WL_DISCONNECTED:
+            for (const auto &callback : this->onDisconnectCallbacks)
+            {
+                callback();
+            }
+        }
+        this->previousStatus = currentStatus;
+    }
+    if (currentStatus != WL_CONNECTED && this->connectionStartTime.has_value())
+    {
+        if (now - this->connectionStartTime.value() > WIFI_CONNECTION_TIMEOUT)
+        {
+#ifdef DEBUG
+            Serial.println("[WifiManager] Connection timeout reached.");
+#endif
+            for (const auto &callback : this->onErrorCallbacks)
+            {
+                callback(ConnectionStatus::TIMEOUT);
+            }
+            this->connectionStartTime.reset();
+        }
+    }
+}
+
+void WifiManager::onConnect(ConnectCallback callback)
+{
+    this->onConnectCallbacks.push_back(callback);
+}
+
+void WifiManager::onError(ErrorCallback callback)
+{
+    this->onErrorCallbacks.push_back(callback);
+}
+
+void WifiManager::onDisconnect(DisconnectCallback callback)
+{
+    this->onDisconnectCallbacks.push_back(callback);
 }

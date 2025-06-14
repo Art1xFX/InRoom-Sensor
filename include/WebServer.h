@@ -3,18 +3,19 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncJson.h>
 
 #include "Configuration.h"
-#include "json/WiFiCredentialsJson.h"
+#include "WifiManager.h"
+#include "json/Configuration.h"
 
 
 class WebServer {
 private:
     AsyncWebServer server;
-    Configuration& configuration;
-
-    void handleGetConfig(AsyncWebServerRequest *request) const;
+    AsyncCallbackJsonWebHandler* postConfigHandler;
 
 public:
-    WebServer(Configuration& config);
+    WebServer(Configuration& config, WifiManager& wifiManager);
+    ~WebServer();
 };
