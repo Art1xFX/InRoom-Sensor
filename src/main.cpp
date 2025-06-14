@@ -10,9 +10,12 @@ void setup()
 #endif
     configuration = new Configuration();
     wifiManager = new WifiManager();
+    mqttManager = new MqttManager(*configuration);
+
     wifiManager->onConnect([]()
     {
         Serial.println("[Main] Wi-Fi connected.");
+        mqttManager->connect(*configuration->getMqttEndpoint());
     });
     wifiManager->onError([](ConnectionStatus status)
     {
@@ -27,7 +30,31 @@ void setup()
             break;
         }
         wifiManager->startAccessPoint();
-        webServer = new WebServer(*configuration, *wifiManager);
+        if (webServer == nullptr)
+        {
+            webServer = new WebServer(*configuration, *wifiManager);
+        }
+    });
+
+    mqttManager->onConnect([]()
+    {
+        Serial.println("[Main] MQTT connected.");
+        if (webServer != nullptr)
+        {
+            delete webServer;
+            webServer = nullptr;
+        }
+        wifiManager->stopAccessPoint();
+    });
+    mqttManager->onDisconnect([]()
+    {
+        Serial.println("[Main] MQTT disconnected.");
+        wifiManager->disconnect();
+        wifiManager->startAccessPoint();
+        if (webServer == nullptr)
+        {
+            webServer = new WebServer(*configuration, *wifiManager);
+        }
     });
 
     auto wifiCredentials = configuration->getWifiCredentials();
