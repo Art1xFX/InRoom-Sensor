@@ -21,6 +21,15 @@ void WifiManager::connect(const WiFiCredentials &wifiCredentials)
     // TODO: Handle status changes and connection errors.
 }
 
+void WifiManager::disconnect()
+{
+#ifdef DEBUG
+    Serial.println("[WifiManager] Disconnecting from Wi-Fi...");
+#endif
+    WiFi.disconnect();
+    this->connectionStartTime.reset();
+}
+
 void WifiManager::startAccessPoint()
 {
 #ifdef DEBUG

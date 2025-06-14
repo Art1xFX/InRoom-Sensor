@@ -51,6 +51,8 @@ public:
 
     void connect(const WiFiCredentials& credentials);
 
+    void disconnect();
+
     void startAccessPoint();
 
     void stopAccessPoint();
