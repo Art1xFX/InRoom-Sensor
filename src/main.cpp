@@ -17,8 +17,12 @@ void setup()
     configuration->onMqttDataTopicChange([](const char *topic)
     {
         Serial.printf("[Main] MQTT data topic changed: %s\n", topic);
+
         strcpy(lightSensorDataTopic, topic);
         strcat(lightSensorDataTopic, "/light");
+
+        strcpy(motionSensorDataTopic, topic);
+        strcat(motionSensorDataTopic, "/motion");
     });
 
     wifiManager->onConnect([]()
@@ -79,7 +83,10 @@ void setup()
     motionSensor->setInterval(2000);
     motionSensor->onChange([](bool motionDetected)
     {
-        Serial.printf("[Main] Motion sensor value changed: %s\n", motionDetected ? "Yes" : "No");
+        auto payload = motionDetected ? "true" : "false";
+        Serial.printf("[Main] Motion sensor value changed: %s\n", payload);
+        Serial.printf("[Main] Publishing to MQTT topic '%s': %s\n", motionSensorDataTopic, payload);
+        mqttManager->publish(motionSensorDataTopic, payload);
     });
 
     auto mqttDataTopic = configuration->getMqttDataTopic();
@@ -88,6 +95,10 @@ void setup()
         strcpy(lightSensorDataTopic, mqttDataTopic);
         strcat(lightSensorDataTopic, "/light");
         Serial.printf("[Main] MQTT data topic set: %s\n", lightSensorDataTopic);
+
+        strcpy(motionSensorDataTopic, mqttDataTopic);
+        strcat(motionSensorDataTopic, "/motion");
+        Serial.printf("[Main] MQTT data topic set: %s\n", motionSensorDataTopic);
     }
 
     auto wifiCredentials = configuration->getWifiCredentials();

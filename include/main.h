@@ -10,6 +10,7 @@
 #include "sensor/MotionSensor.h"
 
 #define MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX "/light"
+#define MQTT_DATA_TOPIC_MOTION_SENSOR_SUFFIX "/motion"
 
 Configuration *configuration;
 WifiManager *wifiManager;
@@ -18,6 +19,7 @@ MqttManager* mqttManager;
 LightSensor *lightSensor;
 MotionSensor *motionSensor;
 char lightSensorDataTopic[255 + sizeof(MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX)];
+char motionSensorDataTopic[255 + sizeof(MQTT_DATA_TOPIC_MOTION_SENSOR_SUFFIX)];
 
 void setup();
 
