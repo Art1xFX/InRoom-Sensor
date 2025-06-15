@@ -50,6 +50,8 @@ struct MqttEndpoint
 
 class Configuration
 {
+public:
+    using OnMqttDataTopicChangeCallback = std::function<void(const char*)>;
 private:
     WIFI_CREDENTIALS_MAGIC_TYPE wifiCredentialsMagicValue;
     WiFiCredentials wifiCredentials;
@@ -57,6 +59,8 @@ private:
     MqttEndpoint mqttEndpoint;
     MQTT_DATA_TOPIC_MAGIC_TYPE mqttDataTopicMagicValue;
     char mqttDataTopic[255];
+
+    std::vector<OnMqttDataTopicChangeCallback> onMqttDataTopicChangeCallbacks;
 
 public:
     Configuration();
@@ -74,6 +78,8 @@ public:
     const char* getMqttDataTopic() const;
     void setMqttDataTopic(const char* topic);
     void clearMqttDataTopic();
+
+    void onMqttDataTopicChange(const OnMqttDataTopicChangeCallback& callback);
 
     bool save();
 };

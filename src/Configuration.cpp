@@ -214,6 +214,10 @@ void Configuration::setMqttDataTopic(const char *topic)
     Serial.println(this->mqttDataTopic);
 #endif
     EEPROM.put(MQTT_DATA_TOPIC_OFFSET, this->mqttDataTopic);
+    for (const auto &callback : this->onMqttDataTopicChangeCallbacks)
+    {
+        callback(this->mqttDataTopic);
+    }
 }
 
 void Configuration::clearMqttDataTopic()
@@ -223,6 +227,11 @@ void Configuration::clearMqttDataTopic()
         this->mqttDataTopicMagicValue = 0;
         EEPROM.put(MQTT_DATA_TOPIC_MAGIC_OFFSET, this->mqttDataTopicMagicValue);
     }
+}
+
+void Configuration::onMqttDataTopicChange(const OnMqttDataTopicChangeCallback &callback)
+{
+    this->onMqttDataTopicChangeCallbacks.push_back(callback);
 }
 
 bool Configuration::save()
