@@ -15,7 +15,7 @@ WifiManager *wifiManager;
 WebServer *webServer;
 MqttManager* mqttManager;
 LightSensor *lightSensor;
-char dataTopic[255 + sizeof(MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX)];
+char lightSensorDataTopic[255 + sizeof(MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX)];
 
 void setup();
 
