@@ -42,6 +42,10 @@ struct MqttEndpoint
     uint16_t port;
 
     MqttEndpoint(const char *host = "", uint16_t port = 1883);
+
+    bool operator==(const MqttEndpoint& other) const {
+        return strcmp(this->host, other.host) == 0 && this->port == other.port;
+    }
 };
 
 class Configuration
