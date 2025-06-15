@@ -13,6 +13,13 @@ void setup()
     mqttManager = new MqttManager(*configuration);
     lightSensor = new LightSensor();
 
+    configuration->onMqttDataTopicChange([](const char *topic)
+    {
+        Serial.printf("[Main] MQTT data topic changed: %s\n", topic);
+        strcpy(dataTopic, topic);
+        strcat(dataTopic, "/light");
+    });
+
     wifiManager->onConnect([]()
     {
         Serial.println("[Main] Wi-Fi connected.");
@@ -63,13 +70,18 @@ void setup()
     {
         Serial.printf("[Main] Light sensor value changed: %.2f lux\n", value);
         char payload[16];
-        // TODO: Change topic length to match the actual topic length using macros or constants.
-        char topic[256 * 2];
         snprintf(payload, sizeof(payload), "%.2f", value);
-        strcpy(topic, configuration->getMqttDataTopic());
-        strcat(topic, "/light");
-        mqttManager->publish(topic, payload);
+        Serial.printf("[Main] Publishing to MQTT topic '%s': %s\n", dataTopic, payload);
+        mqttManager->publish(dataTopic, payload);
     });
+
+    auto mqttDataTopic = configuration->getMqttDataTopic();
+    if (mqttDataTopic != nullptr)
+    {
+        strcpy(dataTopic, mqttDataTopic);
+        strcat(dataTopic, "/light");
+        Serial.printf("[Main] MQTT data topic set: %s\n", dataTopic);
+    }
 
     auto wifiCredentials = configuration->getWifiCredentials();
     if (wifiCredentials)
