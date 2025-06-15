@@ -185,6 +185,11 @@ const char *Configuration::getMqttDataTopic() const
 
 void Configuration::setMqttDataTopic(const char *topic)
 {
+    if (this->mqttDataTopic == nullptr || strncmp(this->mqttDataTopic, topic, sizeof(this->mqttDataTopic)) == 0)
+    {
+        return;
+    }
+
     strncpy(this->mqttDataTopic, topic, sizeof(this->mqttDataTopic) - 1);
     this->mqttDataTopic[sizeof(this->mqttDataTopic) - 1] = '\0';
 #ifdef DEBUG
