@@ -58,9 +58,17 @@ void setup()
         }
     });
 
+    lightSensor->setInterval(500);
     lightSensor->onChange([](float value)
     {
         Serial.printf("[Main] Light sensor value changed: %.2f lux\n", value);
+        char payload[16];
+        // TODO: Change topic length to match the actual topic length using macros or constants.
+        char topic[256 * 2];
+        snprintf(payload, sizeof(payload), "%.2f", value);
+        strcpy(topic, configuration->getMqttDataTopic());
+        strcat(topic, "/light");
+        mqttManager->publish(topic, payload);
     });
 
     auto wifiCredentials = configuration->getWifiCredentials();
