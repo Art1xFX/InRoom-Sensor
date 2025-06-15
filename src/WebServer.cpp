@@ -22,8 +22,11 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
                 Serial.println(configurationJson.mqtt_host);
                 Serial.print("    Port: ");
                 Serial.println(configurationJson.mqtt_port);
+                Serial.print("    Data topic: ");
+                Serial.println(configurationJson.mqtt_data_topic);
                 configuration.setWifiCredentials(configurationJson.wifi_ssid, configurationJson.wifi_password);
                 configuration.setMqttEndpoint(configurationJson.mqtt_host, configurationJson.mqtt_port);
+                configuration.setMqttDataTopic(configurationJson.mqtt_data_topic);
                 wifiManager.connect(*configuration.getWifiCredentials());
 
                 // TODO: Save the configuration to persistent storage only if the Wi-Fi connection is successful.
@@ -54,6 +57,7 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
         {
             auto credentials = configuration.getWifiCredentials();
             auto mqttEndpoint = configuration.getMqttEndpoint();
+            auto mqttDataTopic = configuration.getMqttDataTopic();
             if (credentials != nullptr && mqttEndpoint != nullptr)
             {
                 json::Configuration configurationJson;
@@ -61,6 +65,7 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
                 strlcpy(configurationJson.wifi_password, credentials->password, sizeof(configurationJson.wifi_password) - 1);
                 strlcpy(configurationJson.mqtt_host, mqttEndpoint->host, sizeof(configurationJson.mqtt_host) - 1);
                 configurationJson.mqtt_port = mqttEndpoint->port;
+                strlcpy(configurationJson.mqtt_data_topic, mqttDataTopic, sizeof(configurationJson.mqtt_data_topic) - 1);
                 char jsonString[1024];
                 configurationJson.toJsonString(jsonString);
                 request->send(200, "application/json", jsonString);

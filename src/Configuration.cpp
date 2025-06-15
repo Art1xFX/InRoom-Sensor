@@ -19,7 +19,8 @@ MqttEndpoint::MqttEndpoint(const char *host, uint16_t port)
 Configuration::Configuration(): wifiCredentials(), mqttEndpoint()
 {
     int requiredSize = sizeof(WiFiCredentials) + WIFI_CREDENTIALS_MAGIC_SIZE +
-                        sizeof(MqttEndpoint) + MQTT_ENDPOINT_MAGIC_SIZE;
+                        sizeof(MqttEndpoint) + MQTT_ENDPOINT_MAGIC_SIZE +
+                        sizeof(this->mqttDataTopic) + MQTT_DATA_TOPIC_MAGIC_SIZE;
     EEPROM.begin(requiredSize);
 #ifdef DEBUG
     Serial.print("[Configuration] Initializing EEPROM with size: ");
@@ -160,6 +161,77 @@ void Configuration::clearMqttEndpoint()
         this->mqttEndpointMagicValue = 0;
         EEPROM.put(MQTT_ENDPOINT_MAGIC_OFFSET, this->mqttEndpointMagicValue);
     }
+}
+
+const char *Configuration::getMqttDataTopic() const
+{
+    EEPROM.get(MQTT_DATA_TOPIC_MAGIC_OFFSET, this->mqttDataTopicMagicValue);
+
+    if (this->mqttDataTopicMagicValue != MQTT_DATA_TOPIC_MAGIC_VALUE)
+    {
+#ifdef DEBUG
+        Serial.println("[Configuration] No valid MQTT data topic signature found in EEPROM.");
+#endif
+        return nullptr;
+    }
+
+    EEPROM.get(MQTT_DATA_TOPIC_OFFSET, this->mqttDataTopic);
+#ifdef DEBUG
+    Serial.println("[Configuration] MQTT data topic from EEPROM:");
+    Serial.println(this->mqttDataTopic);
+#endif
+    return this->mqttDataTopic;
+}
+
+void Configuration::setMqttDataTopic(const char *topic)
+{
+    if (this->mqttDataTopic == nullptr || strncmp(this->mqttDataTopic, topic, sizeof(this->mqttDataTopic)) == 0)
+    {
+        return;
+    }
+
+    strncpy(this->mqttDataTopic, topic, sizeof(this->mqttDataTopic) - 1);
+    this->mqttDataTopic[sizeof(this->mqttDataTopic) - 1] = '\0';
+#ifdef DEBUG
+    Serial.print("[Configuration] Checking MQTT data topic magic value ... ");
+#endif
+    if (this->mqttDataTopicMagicValue != MQTT_DATA_TOPIC_MAGIC_VALUE)
+    {
+#ifdef DEBUG
+        Serial.println("Missing.");
+        Serial.print("[Configuration] Writing MQTT data topic magic value: ");
+        Serial.println(MQTT_DATA_TOPIC_MAGIC_VALUE);
+#endif
+        this->mqttDataTopicMagicValue = MQTT_DATA_TOPIC_MAGIC_VALUE;
+        EEPROM.put(MQTT_DATA_TOPIC_MAGIC_OFFSET, this->mqttDataTopicMagicValue);
+    }
+#ifdef DEBUG
+    else
+    {
+        Serial.println("Found.");
+    }
+    Serial.println("[Configuration] Writing MQTT data topic to EEPROM:");
+    Serial.println(this->mqttDataTopic);
+#endif
+    EEPROM.put(MQTT_DATA_TOPIC_OFFSET, this->mqttDataTopic);
+    for (const auto &callback : this->onMqttDataTopicChangeCallbacks)
+    {
+        callback(this->mqttDataTopic);
+    }
+}
+
+void Configuration::clearMqttDataTopic()
+{
+    if (this->mqttDataTopicMagicValue == MQTT_DATA_TOPIC_MAGIC_VALUE)
+    {
+        this->mqttDataTopicMagicValue = 0;
+        EEPROM.put(MQTT_DATA_TOPIC_MAGIC_OFFSET, this->mqttDataTopicMagicValue);
+    }
+}
+
+void Configuration::onMqttDataTopicChange(const OnMqttDataTopicChangeCallback &callback)
+{
+    this->onMqttDataTopicChangeCallbacks.push_back(callback);
 }
 
 bool Configuration::save()

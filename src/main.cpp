@@ -11,6 +11,19 @@ void setup()
     configuration = new Configuration();
     wifiManager = new WifiManager();
     mqttManager = new MqttManager(*configuration);
+    lightSensor = new LightSensor();
+    motionSensor = new MotionSensor();
+
+    configuration->onMqttDataTopicChange([](const char *topic)
+    {
+        Serial.printf("[Main] MQTT data topic changed: %s\n", topic);
+
+        strcpy(lightSensorDataTopic, topic);
+        strcat(lightSensorDataTopic, MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX);
+
+        strcpy(motionSensorDataTopic, topic);
+        strcat(motionSensorDataTopic, MQTT_DATA_TOPIC_MOTION_SENSOR_SUFFIX);
+    });
 
     wifiManager->onConnect([]()
     {
@@ -57,8 +70,39 @@ void setup()
         }
     });
 
+    lightSensor->setInterval(500);
+    lightSensor->onChange([](float value)
+    {
+        Serial.printf("[Main] Light sensor value changed: %.2f lux\n", value);
+        char payload[16];
+        snprintf(payload, sizeof(payload), "%.2f", value);
+        Serial.printf("[Main] Publishing to MQTT topic '%s': %s\n", lightSensorDataTopic, payload);
+        mqttManager->publish(lightSensorDataTopic, payload);
+    });
+
+    motionSensor->setInterval(2000);
+    motionSensor->onChange([](bool motionDetected)
+    {
+        auto payload = motionDetected ? "true" : "false";
+        Serial.printf("[Main] Motion sensor value changed: %s\n", payload);
+        Serial.printf("[Main] Publishing to MQTT topic '%s': %s\n", motionSensorDataTopic, payload);
+        mqttManager->publish(motionSensorDataTopic, payload);
+    });
+
+    auto mqttDataTopic = configuration->getMqttDataTopic();
+    if (mqttDataTopic != nullptr)
+    {
+        strcpy(lightSensorDataTopic, mqttDataTopic);
+        strcat(lightSensorDataTopic, MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX);
+        Serial.printf("[Main] MQTT data topic set: %s\n", lightSensorDataTopic);
+
+        strcpy(motionSensorDataTopic, mqttDataTopic);
+        strcat(motionSensorDataTopic, MQTT_DATA_TOPIC_MOTION_SENSOR_SUFFIX);
+        Serial.printf("[Main] MQTT data topic set: %s\n", motionSensorDataTopic);
+    }
+
     auto wifiCredentials = configuration->getWifiCredentials();
-    if (wifiCredentials)
+    if (wifiCredentials != nullptr)
     {
         wifiManager->connect(*wifiCredentials);
     }
@@ -73,4 +117,6 @@ void setup()
 void loop()
 {
     wifiManager->tick();
+    lightSensor->tick();
+    motionSensor->tick();
 }
