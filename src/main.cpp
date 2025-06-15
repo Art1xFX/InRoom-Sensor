@@ -19,10 +19,10 @@ void setup()
         Serial.printf("[Main] MQTT data topic changed: %s\n", topic);
 
         strcpy(lightSensorDataTopic, topic);
-        strcat(lightSensorDataTopic, "/light");
+        strcat(lightSensorDataTopic, MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX);
 
         strcpy(motionSensorDataTopic, topic);
-        strcat(motionSensorDataTopic, "/motion");
+        strcat(motionSensorDataTopic, MQTT_DATA_TOPIC_MOTION_SENSOR_SUFFIX);
     });
 
     wifiManager->onConnect([]()
@@ -93,16 +93,16 @@ void setup()
     if (mqttDataTopic != nullptr)
     {
         strcpy(lightSensorDataTopic, mqttDataTopic);
-        strcat(lightSensorDataTopic, "/light");
+        strcat(lightSensorDataTopic, MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX);
         Serial.printf("[Main] MQTT data topic set: %s\n", lightSensorDataTopic);
 
         strcpy(motionSensorDataTopic, mqttDataTopic);
-        strcat(motionSensorDataTopic, "/motion");
+        strcat(motionSensorDataTopic, MQTT_DATA_TOPIC_MOTION_SENSOR_SUFFIX);
         Serial.printf("[Main] MQTT data topic set: %s\n", motionSensorDataTopic);
     }
 
     auto wifiCredentials = configuration->getWifiCredentials();
-    if (wifiCredentials)
+    if (wifiCredentials != nullptr)
     {
         wifiManager->connect(*wifiCredentials);
     }
