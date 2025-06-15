@@ -30,6 +30,10 @@ struct WiFiCredentials
     char password[64];
 
     WiFiCredentials(const char *ssid = "", const char *password = "");
+
+    bool operator==(const WiFiCredentials& other) const {
+        return strcmp(this->ssid, other.ssid) == 0 && strcmp(this->password, other.password) == 0;
+    }
 };
 
 struct MqttEndpoint
