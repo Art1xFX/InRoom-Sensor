@@ -6,12 +6,14 @@
 #include "WifiManager.h"
 #include "WebServer.h"
 #include "MqttManager.h"
+#include "sensor/LightSensor.h"
 
 
 Configuration *configuration;
 WifiManager *wifiManager;
 WebServer *webServer;
 MqttManager* mqttManager;
+LightSensor *lightSensor;
 
 void setup();
 

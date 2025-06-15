@@ -11,6 +11,7 @@ void setup()
     configuration = new Configuration();
     wifiManager = new WifiManager();
     mqttManager = new MqttManager(*configuration);
+    lightSensor = new LightSensor();
 
     wifiManager->onConnect([]()
     {
@@ -57,6 +58,11 @@ void setup()
         }
     });
 
+    lightSensor->onChange([](float value)
+    {
+        Serial.printf("[Main] Light sensor value changed: %.2f lux\n", value);
+    });
+
     auto wifiCredentials = configuration->getWifiCredentials();
     if (wifiCredentials)
     {
@@ -73,4 +79,5 @@ void setup()
 void loop()
 {
     wifiManager->tick();
+    lightSensor->tick();
 }
