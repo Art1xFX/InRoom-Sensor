@@ -7,6 +7,7 @@
 #include "WebServer.h"
 #include "MqttManager.h"
 #include "sensor/LightSensor.h"
+#include "sensor/MotionSensor.h"
 
 #define MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX "/light"
 
@@ -15,6 +16,7 @@ WifiManager *wifiManager;
 WebServer *webServer;
 MqttManager* mqttManager;
 LightSensor *lightSensor;
+MotionSensor *motionSensor;
 char lightSensorDataTopic[255 + sizeof(MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX)];
 
 void setup();

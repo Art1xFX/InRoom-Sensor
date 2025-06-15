@@ -12,6 +12,7 @@ void setup()
     wifiManager = new WifiManager();
     mqttManager = new MqttManager(*configuration);
     lightSensor = new LightSensor();
+    motionSensor = new MotionSensor();
 
     configuration->onMqttDataTopicChange([](const char *topic)
     {
@@ -75,6 +76,12 @@ void setup()
         mqttManager->publish(lightSensorDataTopic, payload);
     });
 
+    motionSensor->setInterval(2000);
+    motionSensor->onChange([](bool motionDetected)
+    {
+        Serial.printf("[Main] Motion sensor value changed: %s\n", motionDetected ? "Yes" : "No");
+    });
+
     auto mqttDataTopic = configuration->getMqttDataTopic();
     if (mqttDataTopic != nullptr)
     {
@@ -100,4 +107,5 @@ void loop()
 {
     wifiManager->tick();
     lightSensor->tick();
+    motionSensor->tick();
 }
