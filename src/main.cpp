@@ -51,6 +51,7 @@ void setup()
 
     mqttManager->onConnect([]()
     {
+        mqttRetriesLeft = 3;
         Serial.println("[Main] MQTT connected.");
         if (webServer != nullptr)
         {
@@ -62,11 +63,22 @@ void setup()
     mqttManager->onDisconnect([]()
     {
         Serial.println("[Main] MQTT disconnected.");
-        wifiManager->disconnect();
-        wifiManager->startAccessPoint();
-        if (webServer == nullptr)
+        if (mqttRetriesLeft > 0)
         {
-            webServer = new WebServer(*configuration, *wifiManager);
+            mqttRetriesLeft--;
+            Serial.printf("[Main] Retrying (%d retries left)...\n", mqttRetriesLeft);
+            mqttManager->connect(*configuration->getMqttEndpoint());
+            return;
+        }
+        else
+        {
+            Serial.println("[Main] No more MQTT retries left.");
+            wifiManager->disconnect();
+            wifiManager->startAccessPoint();
+            if (webServer == nullptr)
+            {
+                webServer = new WebServer(*configuration, *wifiManager);
+            }
         }
     });
 
