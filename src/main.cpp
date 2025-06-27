@@ -27,6 +27,7 @@ void setup()
 
     wifiManager->onConnect([]()
     {
+        wifiRetriesLeft = 3;
         Serial.println("[Main] Wi-Fi connected.");
         mqttManager->connect(*configuration->getMqttEndpoint());
     });
@@ -42,15 +43,43 @@ void setup()
             Serial.println("[Main] Wi-Fi connection error (wrong password).");
             break;
         }
-        wifiManager->startAccessPoint();
-        if (webServer == nullptr)
+        if (wifiRetriesLeft > 0)
         {
-            webServer = new WebServer(*configuration, *wifiManager);
+            Serial.printf("[Main] Retrying Wi-Fi connection (%d retries left)...\n", wifiRetriesLeft);
+            wifiRetriesLeft--;
+            wifiManager->connect(*configuration->getWifiCredentials());
+        }
+        else
+        {
+            Serial.println("[Main] No more Wi-Fi retries left.");
+            mqttManager->disconnect();
+            wifiManager->startAccessPoint();
+            if (webServer == nullptr)
+            {
+                webServer = new WebServer(*configuration, *wifiManager);
+            }
         }
     });
     wifiManager->onDisconnect([]()
     {
         Serial.println("[Main] Wi-Fi disconnected.");
+        if (wifiRetriesLeft > 0)
+        {
+            Serial.printf("[Main] Retrying Wi-Fi connection (%d retries left)...\n", wifiRetriesLeft);
+            wifiRetriesLeft--;
+            wifiManager->connect(*configuration->getWifiCredentials());
+            return;
+        }
+        else
+        {
+            Serial.println("[Main] No more Wi-Fi retries left.");
+            mqttManager->disconnect();
+            wifiManager->startAccessPoint();
+            if (webServer == nullptr)
+            {
+                webServer = new WebServer(*configuration, *wifiManager);
+            }
+        }
     });
 
     mqttManager->onConnect([]()
