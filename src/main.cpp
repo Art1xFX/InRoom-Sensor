@@ -69,8 +69,8 @@ void setup()
         Serial.println("[Main] MQTT disconnected.");
         if (mqttRetriesLeft > 0)
         {
-            mqttRetriesLeft--;
             Serial.printf("[Main] Retrying (%d retries left)...\n", mqttRetriesLeft);
+            mqttRetriesLeft--;
             mqttManager->connect(*configuration->getMqttEndpoint());
             return;
         }
