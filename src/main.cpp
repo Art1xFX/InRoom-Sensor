@@ -48,6 +48,10 @@ void setup()
             webServer = new WebServer(*configuration, *wifiManager);
         }
     });
+    wifiManager->onDisconnect([]()
+    {
+        Serial.println("[Main] Wi-Fi disconnected.");
+    });
 
     mqttManager->onConnect([]()
     {
