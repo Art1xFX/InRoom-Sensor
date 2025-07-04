@@ -84,7 +84,7 @@ void setup()
 
     mqttManager->onConnect([]()
     {
-        mqttRetriesLeft = 3;
+        mqttRetriesLeft = MQTT_RETRIES;
         Serial.println("[Main] MQTT connected.");
         if (webServer != nullptr)
         {
