@@ -48,6 +48,19 @@ struct MqttEndpoint
     }
 };
 
+struct MqttCredentials
+{
+    char username[64];
+    char password[64];
+
+    MqttCredentials(const char *username = "", const char *password = "");
+
+    bool operator==(const MqttCredentials& other) const
+    {
+        return strcmp(this->username, other.username) == 0 && strcmp(this->password, other.password) == 0;
+    }
+};
+
 class Configuration
 {
 public:

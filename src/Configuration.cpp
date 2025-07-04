@@ -16,6 +16,14 @@ MqttEndpoint::MqttEndpoint(const char *host, uint16_t port)
     this->port = port;
 }
 
+MqttCredentials::MqttCredentials(const char *username, const char *password)
+{
+    strncpy(this->username, username, sizeof(this->username) - 1);
+    this->username[sizeof(this->username) - 1] = '\0';
+    strncpy(this->password, password, sizeof(this->password) - 1);
+    this->password[sizeof(this->password) - 1] = '\0';
+}
+
 Configuration::Configuration(): wifiCredentials(), mqttEndpoint()
 {
     int requiredSize = sizeof(WiFiCredentials) + WIFI_CREDENTIALS_MAGIC_SIZE +
