@@ -23,7 +23,7 @@ private:
 public:
     MqttManager(Configuration &config);
 
-    void connect(const MqttEndpoint &endpoint);
+    void connect(const MqttEndpoint &endpoint, const MqttCredentials *credentials = nullptr);
 
     void publish(const char *topic, const char *payload);
 
