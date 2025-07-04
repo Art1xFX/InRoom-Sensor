@@ -12,6 +12,7 @@
 #define MQTT_DATA_TOPIC_LIGHT_SENSOR_SUFFIX "/light"
 #define MQTT_DATA_TOPIC_MOTION_SENSOR_SUFFIX "/motion"
 
+#define WIFI_RETRIES 5
 #define MQTT_RETRIES 5
 
 Configuration *configuration;

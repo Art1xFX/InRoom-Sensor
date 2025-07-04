@@ -27,7 +27,7 @@ void setup()
 
     wifiManager->onConnect([]()
     {
-        wifiRetriesLeft = 3;
+        wifiRetriesLeft = WIFI_RETRIES;
         Serial.println("[Main] Wi-Fi connected.");
         mqttManager->connect(*configuration->getMqttEndpoint(), configuration->getMqttCredentials());
     });
