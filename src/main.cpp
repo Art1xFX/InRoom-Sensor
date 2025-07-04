@@ -29,7 +29,7 @@ void setup()
     {
         wifiRetriesLeft = 3;
         Serial.println("[Main] Wi-Fi connected.");
-        mqttManager->connect(*configuration->getMqttEndpoint());
+        mqttManager->connect(*configuration->getMqttEndpoint(), configuration->getMqttCredentials());
     });
     wifiManager->onError([](ConnectionStatus status)
     {
@@ -100,7 +100,7 @@ void setup()
         {
             Serial.printf("[Main] Retrying (%d retries left)...\n", mqttRetriesLeft);
             mqttRetriesLeft--;
-            mqttManager->connect(*configuration->getMqttEndpoint());
+            mqttManager->connect(*configuration->getMqttEndpoint(), configuration->getMqttCredentials());
             return;
         }
         else
