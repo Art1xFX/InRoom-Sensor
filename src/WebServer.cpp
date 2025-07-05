@@ -75,8 +75,8 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
                 }
                 strlcpy(configurationJson.mqtt_data_topic, mqttDataTopic, sizeof(configurationJson.mqtt_data_topic) - 1);
                 char jsonString[1024];
-                configurationJson.toJsonString(jsonString);
-                request->send(200, "application/json", jsonString);
+                size_t jsonStringLength = configurationJson.toJsonString(jsonString);
+                request->send(200, "application/json", (uint8_t *)jsonString, jsonStringLength);
             }
             else
             {
