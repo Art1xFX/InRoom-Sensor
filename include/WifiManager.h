@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include <vector>
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
@@ -38,11 +38,11 @@ class WifiManager : public TickableBase
 protected:
     wl_status_t previousStatus;
 
-    std::list<ConnectCallback> onConnectCallbacks;
+    std::vector<ConnectCallback> onConnectCallbacks;
 
-    std::list<ErrorCallback> onErrorCallbacks;
+    std::vector<ErrorCallback> onErrorCallbacks;
 
-    std::list<DisconnectCallback> onDisconnectCallbacks;
+    std::vector<DisconnectCallback> onDisconnectCallbacks;
 
     std::optional<uint32_t> connectionStartTime;
 
