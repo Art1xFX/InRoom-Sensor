@@ -29,11 +29,11 @@ namespace json
     {
         JsonVariant jsonVariant;
         DeserializationError error = deserializeJson(jsonVariant, jsonString);
-        if (error)
+        if (error != DeserializationError::Ok)
         {
             return error;
         }
         fromJsonVariant(jsonVariant);
-        return error;
+        return DeserializationError::Ok;
     }
 }
