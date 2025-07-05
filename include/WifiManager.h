@@ -27,14 +27,15 @@ enum struct ConnectionStatus : uint8_t
     TIMEOUT,
 };
 
-typedef std::function<void()> ConnectCallback;
-
-typedef std::function<void(const ConnectionStatus)> ErrorCallback;
-
-typedef ConnectCallback DisconnectCallback;
-
 class WifiManager : public TickableBase
 {
+public:
+    using ConnectCallback = std::function<void()>;
+
+    using ErrorCallback = std::function<void(const ConnectionStatus)>;
+
+    using DisconnectCallback = ConnectCallback;
+
 protected:
     wl_status_t previousStatus;
 
