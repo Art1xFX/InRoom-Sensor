@@ -10,7 +10,7 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
             {
                 JsonObject jsonObject = json.as<JsonObject>();
                 json::Configuration configurationJson;
-                configurationJson.fromJsonObject(jsonObject);
+                configurationJson.fromJsonVariant(jsonObject);
                 Serial.println("[WebServer] ===> POST /config");
                 Serial.println("  === Wi-Fi ===");
                 Serial.print("    SSID: ");
