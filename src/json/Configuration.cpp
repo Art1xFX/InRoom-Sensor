@@ -1,6 +1,6 @@
 #include "json/Configuration.h"
 
-void json::Configuration::toJsonVariant(JsonObject &json) const
+void json::Configuration::toJsonVariant(JsonVariant &json) const
 {
     json["wifi_ssid"] = this->wifi_ssid;
     json["wifi_password"] = this->wifi_password;
@@ -11,7 +11,7 @@ void json::Configuration::toJsonVariant(JsonObject &json) const
     json["mqtt_data_topic"] = this->mqtt_data_topic;
 }
 
-void json::Configuration::fromJsonVariant(const JsonObject &json)
+void json::Configuration::fromJsonVariant(const JsonVariant &json)
 {
     if (json["wifi_ssid"].is<const char*>())
     {

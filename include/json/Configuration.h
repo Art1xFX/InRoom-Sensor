@@ -16,8 +16,8 @@ namespace json
 
         Configuration() = default;
 
-        void toJsonVariant(JsonObject &json) const override;
+        void toJsonVariant(JsonVariant &json) const override;
 
-        void fromJsonVariant(const JsonObject &json) override;
+        void fromJsonVariant(const JsonVariant &json) override;
     };
 }

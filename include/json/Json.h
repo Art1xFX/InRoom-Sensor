@@ -6,9 +6,9 @@ namespace json
     class Json
     {
     public:
-        virtual void toJsonVariant(JsonObject &jsonObject) const = 0;
+        virtual void toJsonVariant(JsonVariant &jsonVariant) const = 0;
 
-        virtual void fromJsonVariant(const JsonObject &jsonObject) = 0;
+        virtual void fromJsonVariant(const JsonVariant &jsonVariant) = 0;
 
         size_t toJsonString(char *jsonString) const;
 
@@ -19,8 +19,8 @@ namespace json
     size_t Json<N>::toJsonString(char *jsonString) const
     {
         JsonDocument document;
-        JsonObject jsonObject = document.to<JsonObject>();
-        toJsonVariant(jsonObject);
+        JsonVariant jsonVariant = document.to<JsonVariant>();
+        toJsonVariant(jsonVariant);
         return serializeJson(document, jsonString, N);
     }
 
@@ -33,8 +33,8 @@ namespace json
         {
             return error;
         }
-        JsonObject jsonObject = document.as<JsonObject>();
-        fromJsonVariant(jsonObject);
+        JsonVariant jsonVariant = document.as<JsonVariant>();
+        fromJsonVariant(jsonVariant);
         return error;
     }
 }
