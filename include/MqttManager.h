@@ -1,7 +1,7 @@
 #pragma once
 
-#include <list>
 #include <functional>
+#include <vector>
 
 #include <Arduino.h>
 #include <AsyncMqttClient.h>
@@ -16,9 +16,9 @@ class MqttManager
 private:
     AsyncMqttClient mqttClient;
 
-    std::list<MqttConnectCallback> onConnectCallbacks;
+    std::vector<MqttConnectCallback> onConnectCallbacks;
 
-    std::list<MqttDisconnectCallback> onDisconnectCallbacks;
+    std::vector<MqttDisconnectCallback> onDisconnectCallbacks;
 
 public:
     MqttManager(Configuration &config);
