@@ -7,12 +7,13 @@
 #include <AsyncMqttClient.h>
 #include "Configuration.h"
 
-typedef std::function<void()> MqttConnectCallback;
-
-typedef std::function<void()> MqttDisconnectCallback;
-
 class MqttManager
 {
+public:
+    using MqttConnectCallback = std::function<void()>;
+
+    using MqttDisconnectCallback = std::function<void()>;
+
 private:
     AsyncMqttClient mqttClient;
 
