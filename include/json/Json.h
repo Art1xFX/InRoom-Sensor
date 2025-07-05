@@ -21,19 +21,18 @@ namespace json
         JsonDocument document;
         JsonVariant jsonVariant = document.to<JsonVariant>();
         toJsonVariant(jsonVariant);
-        return serializeJson(document, jsonString, N);
+        return serializeJson(jsonVariant, jsonString, N);
     }
 
     template <size_t N>
     DeserializationError Json<N>::fromJsonString(const char *jsonString)
     {
-        JsonDocument document;
-        DeserializationError error = deserializeJson(document, jsonString);
+        JsonVariant jsonVariant;
+        DeserializationError error = deserializeJson(jsonVariant, jsonString);
         if (error)
         {
             return error;
         }
-        JsonVariant jsonVariant = document.as<JsonVariant>();
         fromJsonVariant(jsonVariant);
         return error;
     }
