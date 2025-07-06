@@ -18,7 +18,13 @@
 #define MQTT_ENDPOINT_MAGIC_SIZE sizeof(MQTT_ENDPOINT_MAGIC_TYPE)
 #define MQTT_ENDPOINT_OFFSET (MQTT_ENDPOINT_MAGIC_OFFSET + MQTT_ENDPOINT_MAGIC_SIZE)
 
-#define MQTT_DATA_TOPIC_MAGIC_OFFSET (MQTT_ENDPOINT_OFFSET + sizeof(MqttEndpoint))
+#define MQTT_CREDENTIALS_MAGIC_OFFSET MQTT_ENDPOINT_OFFSET + sizeof(MqttEndpoint)
+#define MQTT_CREDENTIALS_MAGIC_TYPE uint16_t
+#define MQTT_CREDENTIALS_MAGIC_VALUE 0xABCF
+#define MQTT_CREDENTIALS_MAGIC_SIZE sizeof(MQTT_CREDENTIALS_MAGIC_TYPE)
+#define MQTT_CREDENTIALS_OFFSET (MQTT_CREDENTIALS_MAGIC_OFFSET + MQTT_CREDENTIALS_MAGIC_SIZE)
+
+#define MQTT_DATA_TOPIC_MAGIC_OFFSET (MQTT_CREDENTIALS_OFFSET + sizeof(MqttCredentials))
 #define MQTT_DATA_TOPIC_MAGIC_TYPE uint8_t
 #define MQTT_DATA_TOPIC_MAGIC_VALUE 0x01
 #define MQTT_DATA_TOPIC_MAGIC_SIZE sizeof(MQTT_DATA_TOPIC_MAGIC_TYPE)
@@ -43,8 +49,22 @@ struct MqttEndpoint
 
     MqttEndpoint(const char *host = "", uint16_t port = 1883);
 
-    bool operator==(const MqttEndpoint& other) const {
+    bool operator==(const MqttEndpoint& other) const
+    {
         return strcmp(this->host, other.host) == 0 && this->port == other.port;
+    }
+};
+
+struct MqttCredentials
+{
+    char username[64];
+    char password[64];
+
+    MqttCredentials(const char *username = "", const char *password = "");
+
+    bool operator==(const MqttCredentials& other) const
+    {
+        return strcmp(this->username, other.username) == 0 && strcmp(this->password, other.password) == 0;
     }
 };
 
@@ -57,6 +77,8 @@ private:
     WiFiCredentials wifiCredentials;
     MQTT_ENDPOINT_MAGIC_TYPE mqttEndpointMagicValue;
     MqttEndpoint mqttEndpoint;
+    MQTT_CREDENTIALS_MAGIC_TYPE mqttCredentialsMagicValue;
+    MqttCredentials mqttCredentials;
     MQTT_DATA_TOPIC_MAGIC_TYPE mqttDataTopicMagicValue;
     char mqttDataTopic[255];
 
@@ -78,6 +100,10 @@ public:
     const char* getMqttDataTopic() const;
     void setMqttDataTopic(const char* topic);
     void clearMqttDataTopic();
+
+    const MqttCredentials* getMqttCredentials() const;
+    void setMqttCredentials(const char *username, const char *password);
+    void clearMqttCredentials();
 
     void onMqttDataTopicChange(const OnMqttDataTopicChangeCallback& callback);
 

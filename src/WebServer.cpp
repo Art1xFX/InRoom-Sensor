@@ -10,7 +10,7 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
             {
                 JsonObject jsonObject = json.as<JsonObject>();
                 json::Configuration configurationJson;
-                configurationJson.fromJsonObject(jsonObject);
+                configurationJson.fromJsonVariant(jsonObject);
                 Serial.println("[WebServer] ===> POST /config");
                 Serial.println("  === Wi-Fi ===");
                 Serial.print("    SSID: ");
@@ -26,6 +26,8 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
                 Serial.println(configurationJson.mqtt_data_topic);
                 configuration.setWifiCredentials(configurationJson.wifi_ssid, configurationJson.wifi_password);
                 configuration.setMqttEndpoint(configurationJson.mqtt_host, configurationJson.mqtt_port);
+                // TODO: Check if MQTT credentials are provided.
+                configuration.setMqttCredentials(configurationJson.mqtt_user, configurationJson.mqtt_password);
                 configuration.setMqttDataTopic(configurationJson.mqtt_data_topic);
                 wifiManager.connect(*configuration.getWifiCredentials());
 
@@ -57,6 +59,7 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
         {
             auto credentials = configuration.getWifiCredentials();
             auto mqttEndpoint = configuration.getMqttEndpoint();
+            auto mqttCredentials = configuration.getMqttCredentials();
             auto mqttDataTopic = configuration.getMqttDataTopic();
             if (credentials != nullptr && mqttEndpoint != nullptr)
             {
@@ -65,10 +68,15 @@ WebServer::WebServer(Configuration &configuration, WifiManager &wifiManager) : s
                 strlcpy(configurationJson.wifi_password, credentials->password, sizeof(configurationJson.wifi_password) - 1);
                 strlcpy(configurationJson.mqtt_host, mqttEndpoint->host, sizeof(configurationJson.mqtt_host) - 1);
                 configurationJson.mqtt_port = mqttEndpoint->port;
+                if (mqttCredentials != nullptr)
+                {
+                    strlcpy(configurationJson.mqtt_user, mqttCredentials->username, sizeof(configurationJson.mqtt_user) - 1);
+                    strlcpy(configurationJson.mqtt_password, mqttCredentials->password, sizeof(configurationJson.mqtt_password) - 1);
+                }
                 strlcpy(configurationJson.mqtt_data_topic, mqttDataTopic, sizeof(configurationJson.mqtt_data_topic) - 1);
                 char jsonString[1024];
-                configurationJson.toJsonString(jsonString);
-                request->send(200, "application/json", jsonString);
+                size_t jsonStringLength = configurationJson.toJsonString(jsonString);
+                request->send(200, "application/json", (uint8_t *)jsonString, jsonStringLength);
             }
             else
             {

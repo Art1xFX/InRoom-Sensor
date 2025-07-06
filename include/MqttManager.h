@@ -1,29 +1,30 @@
 #pragma once
 
-#include <list>
 #include <functional>
+#include <vector>
 
 #include <Arduino.h>
 #include <AsyncMqttClient.h>
 #include "Configuration.h"
 
-typedef std::function<void()> MqttConnectCallback;
-
-typedef std::function<void()> MqttDisconnectCallback;
-
 class MqttManager
 {
+public:
+    using MqttConnectCallback = std::function<void()>;
+
+    using MqttDisconnectCallback = std::function<void()>;
+
 private:
     AsyncMqttClient mqttClient;
 
-    std::list<MqttConnectCallback> onConnectCallbacks;
+    std::vector<MqttConnectCallback> onConnectCallbacks;
 
-    std::list<MqttDisconnectCallback> onDisconnectCallbacks;
+    std::vector<MqttDisconnectCallback> onDisconnectCallbacks;
 
 public:
     MqttManager(Configuration &config);
 
-    void connect(const MqttEndpoint &endpoint);
+    void connect(const MqttEndpoint &endpoint, const MqttCredentials *credentials = nullptr);
 
     void publish(const char *topic, const char *payload);
 

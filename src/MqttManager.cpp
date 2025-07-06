@@ -25,12 +25,16 @@ MqttManager::MqttManager(Configuration &config)
     });
 }
 
-void MqttManager::connect(const MqttEndpoint &endpoint)
+void MqttManager::connect(const MqttEndpoint &endpoint, const MqttCredentials *credentials)
 {
 #ifdef DEBUG
     Serial.printf("[MqttManager] Connecting to MQTT broker at %s:%d...\n", endpoint.host, endpoint.port);
 #endif
     this->mqttClient.setServer(endpoint.host, endpoint.port);
+    if (credentials != nullptr)
+    {
+        this->mqttClient.setCredentials(credentials->username, credentials->password);
+    }
     this->mqttClient.connect();
 }
 

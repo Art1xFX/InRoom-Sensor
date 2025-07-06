@@ -16,10 +16,19 @@ MqttEndpoint::MqttEndpoint(const char *host, uint16_t port)
     this->port = port;
 }
 
-Configuration::Configuration(): wifiCredentials(), mqttEndpoint()
+MqttCredentials::MqttCredentials(const char *username, const char *password)
+{
+    strncpy(this->username, username, sizeof(this->username) - 1);
+    this->username[sizeof(this->username) - 1] = '\0';
+    strncpy(this->password, password, sizeof(this->password) - 1);
+    this->password[sizeof(this->password) - 1] = '\0';
+}
+
+Configuration::Configuration(): wifiCredentials(), mqttEndpoint(), mqttCredentials()
 {
     int requiredSize = sizeof(WiFiCredentials) + WIFI_CREDENTIALS_MAGIC_SIZE +
                         sizeof(MqttEndpoint) + MQTT_ENDPOINT_MAGIC_SIZE +
+                        sizeof(MqttCredentials) + MQTT_CREDENTIALS_MAGIC_SIZE +
                         sizeof(this->mqttDataTopic) + MQTT_DATA_TOPIC_MAGIC_SIZE;
     EEPROM.begin(requiredSize);
 #ifdef DEBUG
@@ -240,4 +249,64 @@ bool Configuration::save()
     Serial.println("[Configuration] Saving configuration to EEPROM.");
 #endif
     return EEPROM.commit();
+}
+
+const MqttCredentials* Configuration::getMqttCredentials() const
+{
+    EEPROM.get(MQTT_CREDENTIALS_MAGIC_OFFSET, this->mqttCredentialsMagicValue);
+
+    if (this->mqttCredentialsMagicValue != MQTT_CREDENTIALS_MAGIC_VALUE)
+    {
+#ifdef DEBUG
+        Serial.println("[Configuration] No valid MQTT credentials found in EEPROM.");
+#endif
+        return nullptr;
+    }
+
+#ifdef DEBUG
+    Serial.println("[Configuration] MQTT credentials from EEPROM:");
+    Serial.print("  Username: ");
+    Serial.println(this->mqttCredentials.username);
+    Serial.print("  Password: ");
+    Serial.println(this->mqttCredentials.password);
+#endif
+
+    return &this->mqttCredentials;
+}
+
+void Configuration::setMqttCredentials(const char *username, const char *password)
+{
+    if (strncmp(this->mqttCredentials.username, username, sizeof(this->mqttCredentials.username)) == 0 &&
+        strncmp(this->mqttCredentials.password, password, sizeof(this->mqttCredentials.password)) == 0)
+    {
+        return;
+    }
+
+    strncpy(this->mqttCredentials.username, username, sizeof(this->mqttCredentials.username) - 1);
+    strncpy(this->mqttCredentials.password, password, sizeof(this->mqttCredentials.password) - 1);
+
+#ifdef DEBUG
+    Serial.println("[Configuration] Writing MQTT credentials to EEPROM:");
+    Serial.print("  Username: ");
+    Serial.println(this->mqttCredentials.username);
+    Serial.print("  Password: ");
+    Serial.println(this->mqttCredentials.password);
+#endif
+
+    if (this->mqttCredentialsMagicValue != MQTT_CREDENTIALS_MAGIC_VALUE)
+    {
+        this->mqttCredentialsMagicValue = MQTT_CREDENTIALS_MAGIC_VALUE;
+        EEPROM.put(MQTT_CREDENTIALS_MAGIC_OFFSET, this->mqttCredentialsMagicValue);
+    }
+
+    EEPROM.put(MQTT_CREDENTIALS_OFFSET, this->mqttCredentials);
+}
+
+void Configuration::clearMqttCredentials()
+{
+    if (this->mqttCredentialsMagicValue == MQTT_CREDENTIALS_MAGIC_VALUE)
+    {
+        this->mqttCredentialsMagicValue = 0;
+        EEPROM.put(MQTT_CREDENTIALS_MAGIC_OFFSET, this->mqttCredentialsMagicValue);
+    }
 }

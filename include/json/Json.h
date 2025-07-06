@@ -6,9 +6,9 @@ namespace json
     class Json
     {
     public:
-        virtual void toJsonObject(JsonObject &jsonObject) const = 0;
+        virtual void toJsonVariant(JsonVariant &jsonVariant) const = 0;
 
-        virtual void fromJsonObject(const JsonObject &jsonObject) = 0;
+        virtual void fromJsonVariant(const JsonVariant &jsonVariant) = 0;
 
         size_t toJsonString(char *jsonString) const;
 
@@ -19,22 +19,21 @@ namespace json
     size_t Json<N>::toJsonString(char *jsonString) const
     {
         JsonDocument document;
-        JsonObject jsonObject = document.to<JsonObject>();
-        toJsonObject(jsonObject);
-        return serializeJson(document, jsonString, N);
+        JsonVariant jsonVariant = document.to<JsonVariant>();
+        toJsonVariant(jsonVariant);
+        return serializeJson(jsonVariant, jsonString, N);
     }
 
     template <size_t N>
     DeserializationError Json<N>::fromJsonString(const char *jsonString)
     {
-        JsonDocument document;
-        DeserializationError error = deserializeJson(document, jsonString);
-        if (error)
+        JsonVariant jsonVariant;
+        DeserializationError error = deserializeJson(jsonVariant, jsonString);
+        if (error != DeserializationError::Ok)
         {
             return error;
         }
-        JsonObject jsonObject = document.as<JsonObject>();
-        fromJsonObject(jsonObject);
-        return error;
+        fromJsonVariant(jsonVariant);
+        return DeserializationError::Ok;
     }
 }
