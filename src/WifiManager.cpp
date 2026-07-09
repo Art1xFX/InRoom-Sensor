@@ -96,12 +96,17 @@ void WifiManager::onTick(uint32_t now)
             }
             this->connectionStartTime.reset();
             WiFi.disconnect();
+            break;
 
         case WL_DISCONNECTED:
             for (const auto &callback : this->onDisconnectCallbacks)
             {
                 callback();
             }
+            break;
+
+        default:
+            break;
         }
         this->previousStatus = currentStatus;
     }

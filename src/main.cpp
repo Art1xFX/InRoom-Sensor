@@ -28,8 +28,20 @@ void setup()
     wifiManager->onConnect([]()
     {
         wifiRetriesLeft = WIFI_RETRIES;
+        mqttRetriesLeft = MQTT_RETRIES;
         Serial.println("[Main] Wi-Fi connected.");
-        mqttManager->connect(*configuration->getMqttEndpoint(), configuration->getMqttCredentials());
+        auto mqttEndpoint = configuration->getMqttEndpoint();
+        if (mqttEndpoint == nullptr)
+        {
+            Serial.println("[Main] No MQTT endpoint found. Starting access point.");
+            wifiManager->startAccessPoint();
+            if (webServer == nullptr)
+            {
+                webServer = new WebServer(*configuration, *wifiManager);
+            }
+            return;
+        }
+        mqttManager->connect(*mqttEndpoint, configuration->getMqttCredentials());
     });
     wifiManager->onError([](ConnectionStatus status)
     {
@@ -41,6 +53,9 @@ void setup()
 
         case ConnectionStatus::WRONG_PASSWORD:
             Serial.println("[Main] Wi-Fi connection error (wrong password).");
+            break;
+
+        default:
             break;
         }
         if (wifiRetriesLeft > 0)
@@ -149,6 +164,7 @@ void setup()
     auto wifiCredentials = configuration->getWifiCredentials();
     if (wifiCredentials != nullptr)
     {
+        wifiRetriesLeft = WIFI_RETRIES;
         wifiManager->connect(*wifiCredentials);
     }
     else
